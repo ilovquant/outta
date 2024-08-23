@@ -67,6 +67,11 @@
             border: 1px solid #ddd;
             border-radius: 8px;
             overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+        .contest:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
         .contest img {
             width: 100%;
@@ -110,7 +115,7 @@
 
     <!-- GitHub에서 호스팅되는 contestData.js 파일을 참조 -->
     <script src="https://ilovquant.github.io/outta/contestData.js"></script>
-    
+
     <script>
         const categories = {
             '기술스택': ["Python", "JavaScript", "SQL", "HTML/CSS", "AI", "Java", "Data", "R", "Unity",
@@ -198,6 +203,22 @@
                     console.error('Contest not found:', contestTitle);
                     contest.style.display = 'none';
                 }
+            });
+        }
+
+        function createContestCards() {
+            const contestsContainer = document.getElementById('contests');
+            contestData.forEach(contest => {
+                const contestElement = document.createElement('div');
+                contestElement.classList.add('contest');
+                contestElement.innerHTML = `
+                    <img src="${contest.이미지url}" alt="${contest.공모전명}">
+                    <div class="contest-info">
+                        <div class="contest-title">${contest.공모전명}</div>
+                        <div class="contest-organizer">${contest.기관명}</div>
+                    </div>
+                `;
+                contestsContainer.appendChild(contestElement);
             });
         }
 
