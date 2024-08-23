@@ -73,24 +73,15 @@
         <!-- 공모전 정보는 JavaScript로 동적으로 추가됩니다 -->
     </div>
 
+    <!-- GitHub에서 호스팅되는 contestData.js 파일을 참조 -->
+    <script src="https://ilovquant.github.io/outta/contestData.js"></script>
+    
     <script>
         const tags = [
             "Python", "JavaScript", "SQL", "HTML/CSS", "AI", "Java", "Data", "R", "Unity",
             "Development", "Analysis", "Big", "React", "AWS", "TensorFlow", "C++", "Learning",
             "Software", "C#", "Blockchain", "Machine", "3D", "Tools", "IoT", "Engine", "Unreal",
             "Video", "MongoDB", "C"
-        ];
-
-        const contestData = [
-            // 여기에 CSV 데이터를 JavaScript 객체 배열로 변환하여 넣습니다
-            // 예시:
-            {
-                name: "2021년도 체육종합 데이터 활용 경진대회",
-                organization: "국민체육진흥공단",
-                imageUrl: "https://cf-cpi.campuspick.com/activity/1633577657709460.jpg",
-                tags: ["Python", "SQL", "HTML/CSS", "JavaScript"] 
-            },
-            // ... 더 많은 데이터 ...
         ];
 
         function createTags() {
@@ -115,10 +106,10 @@
                 const contestElement = document.createElement('div');
                 contestElement.classList.add('contest');
                 contestElement.innerHTML = `
-                    <img src="${contest.imageUrl}" alt="${contest.name}">
+                    <img src="${contest.이미지url}" alt="${contest.공모전명}">
                     <div class="contest-info">
-                        <div class="contest-title">${contest.name}</div>
-                        <div class="contest-organizer">${contest.organization}</div>
+                        <div class="contest-title">${contest.공모전명}</div>
+                        <div class="contest-organizer">${contest.기관명}</div>
                     </div>
                 `;
                 contestsContainer.appendChild(contestElement);
@@ -130,14 +121,17 @@
             const contests = document.querySelectorAll('.contest');
             
             contests.forEach(contest => {
-                const contestTags = contestData.find(data => data.name === contest.querySelector('.contest-title').textContent).tags;
+                const contestTags = contestData.find(data => data.공모전명 === contest.querySelector('.contest-title').textContent).Tags.split(' ');
                 const shouldShow = activeTags.length === 0 || activeTags.some(tag => contestTags.includes(tag));
                 contest.style.display = shouldShow ? 'block' : 'none';
             });
         }
 
-        createTags();
-        createContestCards();
+        // 페이지 로드 시 태그와 공모전 카드 생성
+        document.addEventListener('DOMContentLoaded', () => {
+            createTags();
+            createContestCards();
+        });
     </script>
 </body>
 </html>
