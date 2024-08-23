@@ -4,9 +4,99 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>공모전 추천 사이트</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            background-color: #f8f8f8;
+            padding: 10px;
+            text-align: center;
+        }
+        .tags {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .tag {
+            background-color: #e0e0e0;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        .contests {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        .contest {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .contest img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        .contest-info {
+            padding: 10px;
+        }
+        .contest-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .contest-organizer {
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
 </head>
 <body>
-    <h1>이한철 바보</h1>
-    <p>이 사이트는 현재 개발 중입니다.</p>
+    <div class="header">
+        <h1>공모전 추천 사이트</h1>
+    </div>
+    <div class="tags">
+        <span class="tag">기획/아이디어</span>
+        <span class="tag">광고/마케팅</span>
+        <span class="tag">사진/영상/UCC</span>
+        <span class="tag">디자인/순수미술/공예</span>
+        <span class="tag">네이밍/슬로건</span>
+        <span class="tag">캐릭터/만화/게임</span>
+        <span class="tag">건축/건설/인테리어</span>
+        <span class="tag">과학/공학</span>
+        <span class="tag">예체능/패션</span>
+        <span class="tag">전시/페스티벌</span>
+        <span class="tag">문학/시나리오</span>
+    </div>
+    <div class="contests">
+        <div class="contest">
+            <img src="공모전1_이미지_URL" alt="2024 지역사회 MZ세대 공익광고 공모전">
+            <div class="contest-info">
+                <div class="contest-title">2024 지역사회 MZ세대 공익광고 공모전</div>
+                <div class="contest-organizer">한국언론진흥재단</div>
+            </div>
+        </div>
+        <div class="contest">
+            <img src="공모전2_이미지_URL" alt="2024 NH투자증권 빅데이터 경진대회">
+            <div class="contest-info">
+                <div class="contest-title">2024 NH투자증권 빅데이터 경진대회</div>
+                <div class="contest-organizer">NH투자증권</div>
+            </div>
+        </div>
+        <div class="contest">
+            <img src="공모전3_이미지_URL" alt="2024 한국은행 화폐사랑 콘텐츠 공모전">
+            <div class="contest-info">
+                <div class="contest-title">2024 한국은행 화폐사랑 콘텐츠 공모전</div>
+                <div class="contest-organizer">한국은행</div>
+            </div>
+        </div>
+        <!-- 더 많은 공모전을 추가할 수 있습니다 -->
+    </div>
 </body>
 </html>
