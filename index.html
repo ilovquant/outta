@@ -28,7 +28,6 @@
             justify-content: center;
             margin: 0;
         }
-
         .logo-container {
             text-align: center;
           
@@ -216,6 +215,8 @@
     </style>
 </head>
 <body>
+
+    <div id="error-message" style="display: none; color: red; text-align: center; padding: 20px;"></div>
     
     <header class="header">
         <div class="logo-container">
@@ -225,9 +226,11 @@
     </header>
 
     <div class="category-buttons">
-        <button class="category-button" data-category="기술스택">기술스택</button>
-        <button class="category-button" data-category="산업분야">산업분야</button>
+        <button class="category-button" data-category="기술스택" aria-label="기술스택 카테고리">기술스택</button>
+        <button class="category-button" data-category="산업분야" aria-label="산업분야 카테고리">산업분야</button>
+        <button id="search-button" aria-label="공모전 검색">검색</button>
     </div>
+    
     <div id="tags-containers">
         <div id="기술스택-tags" class="tags-container" style="display:none;">
             <h3>기술스택</h3>
@@ -439,7 +442,8 @@
     
             contests.forEach(contest => {
                 const title = contest.querySelector('.contest-title').textContent.toLowerCase();
-                if (title.includes(searchTerm)) {
+                const organizer = contest.querySelector('.contest-organizer').textContent.toLowerCase();
+                if (title.includes(searchTerm) || organizer.includes(searchTerm)) {
                     contest.style.display = 'block';
                 } else {
                     contest.style.display = 'none';
@@ -484,6 +488,9 @@
                 createContestCards();
             } else {
                 console.error('contestData is not defined. Please check the contestData.js file.');
+                const errorMessage = document.getElementById('error-message');
+                errorMessage.textContent = '죄송합니다. 공모전 데이터를 불러오는 데 문제가 발생했습니다. 잠시 후 다시 시도해주세요.';
+                errorMessage.style.display = 'block';
             }
         });
 </script>
