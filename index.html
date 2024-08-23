@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
@@ -14,6 +15,23 @@
         .header {
             background-color: #f8f8f8;
             padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .logo-container {
+            margin-right: 20px;
+        }
+
+        .logo {
+            width: 100px; /* 로고 크기를 조절하세요 */
+            height: auto;
+        }
+
+        .header h1 {
+            margin: 0;
+            flex-grow: 1;
             text-align: center;
         }
         .category-buttons {
@@ -147,10 +165,13 @@
     </style>
 </head>
 <body>
-    <!-- HTML 구조는 기존과 동일 -->
-    <div class="header">
+    <header class="header">
+        <div class="logo-container">
+            <img src="path/to/bunnytech-logo.png" alt="BunnyTech Logo" class="logo">
+        </div>
         <h1>공모전 추천 사이트</h1>
-    </div>
+    </header>
+
     <div class="category-buttons">
         <button class="category-button" data-category="기술스택">기술스택</button>
         <button class="category-button" data-category="산업분야">산업분야</button>
