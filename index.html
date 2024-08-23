@@ -13,12 +13,20 @@
             padding: 0;
             background-color: #FFD580;
         }
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #FFD580;
+        }
         .header {
             background-color: #f8f8f8;
             padding: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
+            margin: 0;
         }
 
         .logo-container {
@@ -38,10 +46,9 @@
             text-align: center;
         }
         .category-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin: 20px 0;
+            background-color: #FFD580;
+            padding-top: 20px;
+            margin-top: 0;
         }
         .category-button {
             padding: 10px 20px;
@@ -88,14 +95,14 @@
             padding: 20px;
         }
         .contest {
-            border: 1px solid #ddd;
+            border: 2px solid #8B0000;
             border-radius: 8px;
             overflow: hidden;
-            transition: transform 0.3s ease;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             cursor: pointer;
             background-color: #FFF5E6; /* 밝은 크림색 배경 */
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
         }
         .contest:hover {
             transform: translateY(-5px);
@@ -120,9 +127,9 @@
             margin-bottom: 10px;
         }
         .contest-details {
-            background-color: #FFF5E6;
-            border-radius: 8px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            border-bottom: 2px solid #8B0000;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
         }
         .contest-image {
             flex: 1;
@@ -188,6 +195,23 @@
         .similar-contest:hover {
             transform: translateY(-3px);
             box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        .search-container {
+            display: flex;
+            gap: 10px;
+        }
+        #search-input {
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        #search-button {
+            padding: 5px 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -374,6 +398,11 @@
             const contestImageElement = contestDetailsElement.querySelector('.contest-image');
             const similarContestsElement = contestDetailsElement.querySelector('.similar-contests');
 
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+            
             contestImageElement.innerHTML = `
                 <img src="${contest.이미지url}" alt="${contest.공모전명}">
                 <h2>${contest.공모전명}</h2>
@@ -404,6 +433,19 @@
             contestDetailsElement.style.display = 'flex';
         }
 
+        function searchContests() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const contests = document.querySelectorAll('.contest');
+    
+            contests.forEach(contest => {
+                const title = contest.querySelector('.contest-title').textContent.toLowerCase();
+                if (title.includes(searchTerm)) {
+                    contest.style.display = 'block';
+                } else {
+                    contest.style.display = 'none';
+                }
+            });
+        }
         function createContestCards() {
             const contestsContainer = document.getElementById('contests');
             contestData.forEach((contest, index) => {
@@ -425,17 +467,23 @@
                 contestsContainer.appendChild(contestElement);
             });
         }
+        document.getElementById('search-button').addEventListener('click', searchContests);
+        document.getElementById('search-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchContests();
+            }
+        });
 
-    document.addEventListener('DOMContentLoaded', () => {
-        if (typeof contestData !== 'undefined') {
-            createCategoryButtons();
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof contestData !== 'undefined') {
+                createCategoryButtons();
 
-            const documents = contestData.map(contest => `${contest['Tech Stack']} ${contest['Tags']}`);
-            tfidfData = calculateTFIDF(documents);
+                const documents = contestData.map(contest => `${contest['Tech Stack']} ${contest['Tags']}`);
+                tfidfData = calculateTFIDF(documents);
 
-            createContestCards();
-        } else {
-            console.error('contestData is not defined. Please check the contestData.js file.');
-        }
-    });
+                createContestCards();
+            } else {
+                console.error('contestData is not defined. Please check the contestData.js file.');
+            }
+        });
 </script>
