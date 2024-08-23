@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>공모전 추천 사이트</title>
     <style>
+        /* 기존 스타일 유지 */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -89,9 +90,6 @@
             font-size: 14px;
             color: #666;
         }
-        /* ... */
-
-        /* 새로운 스타일 추가 */
         .contest-details {
             display: flex;
             margin-top: 20px;
@@ -130,7 +128,6 @@
     </style>
 </head>
 <body>
-    <!-- 기존 구조 유지 -->
     <div class="header">
         <h1>공모전 추천 사이트</h1>
     </div>
@@ -149,7 +146,6 @@
         </div>
     </div>
 
-    <!-- 새로운 구조 추가 -->
     <div id="contest-details" class="contest-details" style="display: none;">
         <div class="contest-image">
             <!-- 선택된 공모전 이미지가 여기에 표시됩니다 -->
@@ -179,6 +175,8 @@
                     '반도체/전자', '도시계획/인프라']
         };
 
+        let tfidfData;
+
         function createCategoryButtons() {
             const categoryButtons = document.querySelectorAll('.category-button');
             categoryButtons.forEach(button => {
@@ -186,10 +184,7 @@
                     const category = button.dataset.category;
                     const tagsContainer = document.getElementById(`${category}-tags`);
                     
-                    // 버튼 활성화 상태 토글
                     button.classList.toggle('active');
-                    
-                    // 태그 컨테이너 표시/숨김 토글
                     tagsContainer.style.display = button.classList.contains('active') ? 'block' : 'none';
                     
                     if (tagsContainer.style.display === 'block' && tagsContainer.querySelector('.tags').children.length === 0) {
@@ -206,30 +201,14 @@
                 const tagElement = document.createElement('span');
                 tagElement.classList.add('tag');
                 tagElement.textContent = tag;
-                tagElement.addEventListener('click', () => toggleTag(tagElement, category));
+                tagElement.addEventListener('click', () => toggleTag(tagElement));
                 tagsContainer.appendChild(tagElement);
             });
         }
 
-        function toggleTag(tagElement, category) {
+        function toggleTag(tagElement) {
             tagElement.classList.toggle('active');
             filterContests();
-        }
-
-        function createContestCards() {
-            const contestsContainer = document.getElementById('contests');
-            contestData.forEach(contest => {
-                const contestElement = document.createElement('div');
-                contestElement.classList.add('contest');
-                contestElement.innerHTML = `
-                    <img src="${contest.이미지url}" alt="${contest.공모전명}">
-                    <div class="contest-info">
-                        <div class="contest-title">${contest.공모전명}</div>
-                        <div class="contest-organizer">${contest.기관명}</div>
-                    </div>
-                `;
-                contestsContainer.appendChild(contestElement);
-            });
         }
 
         function filterContests() {
@@ -257,40 +236,11 @@
             });
         }
 
-        function createContestCards() {
-            const contestsContainer = document.getElementById('contests');
-            contestData.forEach(contest => {
-                const contestElement = document.createElement('div');
-                contestElement.classList.add('contest');
-                contestElement.innerHTML = `
-                    <img src="${contest.이미지url}" alt="${contest.공모전명}">
-                    <div class="contest-info">
-                        <div class="contest-title">${contest.공모전명}</div>
-                        <div class="contest-organizer">${contest.기관명}</div>
-                    </div>
-                `;
-                contestsContainer.appendChild(contestElement);
-            });
-        }
-
-        // 페이지 로드 시 카테고리 버튼, 공모전 카드 생성
-        document.addEventListener('DOMContentLoaded', () => {
-            if (typeof contestData !== 'undefined') {
-                createCategoryButtons();
-                createContestCards();
-            } else {
-                console.error('contestData is not defined. Please check the contestData.js file.');
-            }
-        });
-        // ...
-
-        // TF-IDF 계산 함수
         function calculateTFIDF(documents) {
             const wordFrequency = {};
             const wordInDocCount = {};
             const tfidf = {};
 
-            // 단어 빈도수와 문서 내 단어 출현 횟수 계산
             documents.forEach((doc, docIndex) => {
                 const words = doc.split(' ');
                 const uniqueWords = new Set(words);
@@ -305,7 +255,6 @@
                 });
             });
 
-            // TF-IDF 계산
             Object.keys(wordFrequency).forEach(docIndex => {
                 tfidf[docIndex] = {};
                 Object.keys(wordFrequency[docIndex]).forEach(word => {
@@ -318,7 +267,6 @@
             return tfidf;
         }
 
-        // 코사인 유사도 계산 함수
         function calculateCosineSimilarity(vec1, vec2) {
             const intersection = Object.keys(vec1).filter(key => vec2.hasOwnProperty(key));
             const dotProduct = intersection.reduce((sum, key) => sum + vec1[key] * vec2[key], 0);
@@ -327,11 +275,10 @@
             return dotProduct / (mag1 * mag2);
         }
 
-        // 유사한 공모전 찾기 함수
         function findSimilarContests(selectedContest, allContests, tfidfData) {
             const similarities = allContests.map((contest, index) => {
                 if (contest === selectedContest) return { contest, similarity: -1 };
-                const similarity = calculateCosineSimilarity(tfidfData[selectedContest.id], tfidfData[contest.id]);
+                const similarity = calculateCosineSimilarity(tfidfData[index.toString()], tfidfData[contestData.indexOf(selectedContest).toString()]);
                 return { contest, similarity };
             });
 
@@ -341,19 +288,15 @@
                 .map(item => item.contest);
         }
 
-        // 공모전 카드 클릭 이벤트 처리 함수
-        function handleContestClick(contest, tfidfData) {
+        function handleContestClick(contest) {
             const contestDetailsElement = document.getElementById('contest-details');
             const contestImageElement = contestDetailsElement.querySelector('.contest-image');
             const similarContestsElement = contestDetailsElement.querySelector('.similar-contests');
 
-            // 선택된 공모전 이미지 표시
             contestImageElement.innerHTML = `<img src="${contest.이미지url}" alt="${contest.공모전명}">`;
 
-            // 유사한 공모전 찾기
             const similarContests = findSimilarContests(contest, contestData, tfidfData);
 
-            // 유사한 공모전 목록 표시
             similarContestsElement.innerHTML = '<h3>유사한 공모전</h3>';
             similarContests.forEach(similarContest => {
                 const similarContestElement = document.createElement('div');
@@ -368,12 +311,10 @@
                 similarContestsElement.appendChild(similarContestElement);
             });
 
-            // 상세 정보 섹션 표시
             contestDetailsElement.style.display = 'flex';
         }
 
-        // 공모전 카드 생성 함수 수정
-        function createContestCards(tfidfData) {
+        function createContestCards() {
             const contestsContainer = document.getElementById('contests');
             contestData.forEach((contest, index) => {
                 const contestElement = document.createElement('div');
@@ -385,21 +326,19 @@
                         <div class="contest-organizer">${contest.기관명}</div>
                     </div>
                 `;
-                contestElement.addEventListener('click', () => handleContestClick(contest, tfidfData));
+                contestElement.addEventListener('click', () => handleContestClick(contest));
                 contestsContainer.appendChild(contestElement);
             });
         }
 
-        // 페이지 로드 시 실행
         document.addEventListener('DOMContentLoaded', () => {
             if (typeof contestData !== 'undefined') {
                 createCategoryButtons();
 
-                // TF-IDF 계산
                 const documents = contestData.map(contest => `${contest['Tech Stack']} ${contest['Tags']}`);
-                const tfidfData = calculateTFIDF(documents);
+                tfidfData = calculateTFIDF(documents);
 
-                createContestCards(tfidfData);
+                createContestCards();
             } else {
                 console.error('contestData is not defined. Please check the contestData.js file.');
             }
