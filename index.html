@@ -69,6 +69,7 @@
             border-radius: 8px;
             overflow: hidden;
             transition: transform 0.3s ease;
+            cursor: pointer;
         }
         .contest:hover {
             transform: translateY(-5px);
@@ -111,23 +112,42 @@
         }
         .similar-contest {
             display: flex;
-            align-items: center;
-            margin-bottom: 10px;
+            flex-direction: column;
+            margin-bottom: 20px;
             padding: 10px;
             background-color: white;
             border-radius: 8px;
             cursor: pointer;
         }
         .similar-contest img {
-            width: 50px;
-            height: 50px;
+            width: 100%;
+            height: 150px;
             object-fit: cover;
-            margin-right: 10px;
             border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        
+        .difficulty {
+        display: flex;
+        gap: 2px;
+        margin-top: 5px;
+        }
+        .difficulty-icon {
+        width: 16px;
+        height: 16px;
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23FFA500"><path d="M12 2C12 2 14 5 14 9C14 13 12 16 12 16C12 16 10 13 10 9C10 5 12 2 12 2ZM12 19C12 19 15 20 15 22C15 23 14 23 12 23C10 23 9 23 9 22C9 20 12 19 12 19Z"/></svg>');
+        background-repeat: no-repeat;
+        background-size: contain;
+        }
+        .contest-period {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
         }
     </style>
 </head>
 <body>
+    <!-- HTML 구조는 기존과 동일 -->
     <div class="header">
         <h1>공모전 추천 사이트</h1>
     </div>
@@ -288,12 +308,30 @@
                 .map(item => item.contest);
         }
 
+        function getDifficultyIcons(difficulty) {
+            const difficultyLevels = {
+                '매우 쉬움': 1,
+                '쉬움': 2,
+                '보통': 3,
+                '어려움': 4,
+                '매우 어려움': 5
+            };
+            const iconCount = difficultyLevels[difficulty] || 0;
+            return '<div class="difficulty">' + '🔥'.repeat(iconCount) + '</div>';
+        }
+
         function handleContestClick(contest) {
             const contestDetailsElement = document.getElementById('contest-details');
             const contestImageElement = contestDetailsElement.querySelector('.contest-image');
             const similarContestsElement = contestDetailsElement.querySelector('.similar-contests');
 
-            contestImageElement.innerHTML = `<img src="${contest.이미지url}" alt="${contest.공모전명}">`;
+            contestImageElement.innerHTML = `
+                <img src="${contest.이미지url}" alt="${contest.공모전명}">
+                <h2>${contest.공모전명}</h2>
+                <p>${contest.기관명}</p>
+                ${getDifficultyIcons(contest.난이도)}
+                <p class="contest-period">${contest.기간}</p>
+            `;
 
             const similarContests = findSimilarContests(contest, contestData, tfidfData);
 
@@ -303,46 +341,46 @@
                 similarContestElement.classList.add('similar-contest');
                 similarContestElement.innerHTML = `
                     <img src="${similarContest.이미지url}" alt="${similarContest.공모전명}">
-                    <div>
-                        <div class="contest-title">${similarContest.공모전명}</div>
-                        <div class="contest-organizer">${similarContest.기관명}</div>
-                    </div>
-                `;
-                similarContestsElement.appendChild(similarContestElement);
-            });
-
+                    <div class="contest-title">${similarContest.공모전명}</div>
+                    <div class="contest-organizer">${similarContest.기관명}</div>
+                    ${getDifficultyIcons(similarContest.난이도)}
+                    <p class="contest-period">${similarContest.기간}</p>
+                    `;
+                    similarContestElement.addEventListener('click', () => handleContestClick(similarContest));
+                    similarContestsElement.appendChild(similarContestElement);
+            }); 
             contestDetailsElement.style.display = 'flex';
-        }
+    }
 
-        function createContestCards() {
-            const contestsContainer = document.getElementById('contests');
-            contestData.forEach((contest, index) => {
-                const contestElement = document.createElement('div');
-                contestElement.classList.add('contest');
-                contestElement.innerHTML = `
-                    <img src="${contest.이미지url}" alt="${contest.공모전명}">
-                    <div class="contest-info">
-                        <div class="contest-title">${contest.공모전명}</div>
-                        <div class="contest-organizer">${contest.기관명}</div>
-                    </div>
-                `;
-                contestElement.addEventListener('click', () => handleContestClick(contest));
-                contestsContainer.appendChild(contestElement);
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            if (typeof contestData !== 'undefined') {
-                createCategoryButtons();
-
-                const documents = contestData.map(contest => `${contest['Tech Stack']} ${contest['Tags']}`);
-                tfidfData = calculateTFIDF(documents);
-
-                createContestCards();
-            } else {
-                console.error('contestData is not defined. Please check the contestData.js file.');
-            }
+    function createContestCards() {
+        const contestsContainer = document.getElementById('contests');
+        contestData.forEach((contest, index) => {
+            const contestElement = document.createElement('div');
+            contestElement.classList.add('contest');
+            contestElement.innerHTML = `
+                <img src="${contest.이미지url}" alt="${contest.공모전명}">
+                <div class="contest-info">
+                    <div class="contest-title">${contest.공모전명}</div>
+                    <div class="contest-organizer">${contest.기관명}</div>
+                    ${getDifficultyIcons(contest.난이도)}
+                    <p class="contest-period">${contest.기간}</p>
+                </div>
+            `;
+            contestElement.addEventListener('click', () => handleContestClick(contest));
+            contestsContainer.appendChild(contestElement);
         });
-    </script>
-</body>
-</html>
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        if (typeof contestData !== 'undefined') {
+            createCategoryButtons();
+
+            const documents = contestData.map(contest => `${contest['Tech Stack']} ${contest['Tags']}`);
+            tfidfData = calculateTFIDF(documents);
+
+            createContestCards();
+        } else {
+            console.error('contestData is not defined. Please check the contestData.js file.');
+        }
+    });
+</script>
