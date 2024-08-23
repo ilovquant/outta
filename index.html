@@ -27,6 +27,11 @@
             padding: 5px 10px;
             border-radius: 20px;
             font-size: 14px;
+            cursor: pointer;
+        }
+        .tag.active {
+            background-color: #4CAF50;
+            color: white;
         }
         .contests {
             display: grid;
@@ -61,42 +66,78 @@
     <div class="header">
         <h1>공모전 추천 사이트</h1>
     </div>
-    <div class="tags">
-        <span class="tag">기획/아이디어</span>
-        <span class="tag">광고/마케팅</span>
-        <span class="tag">사진/영상/UCC</span>
-        <span class="tag">디자인/순수미술/공예</span>
-        <span class="tag">네이밍/슬로건</span>
-        <span class="tag">캐릭터/만화/게임</span>
-        <span class="tag">건축/건설/인테리어</span>
-        <span class="tag">과학/공학</span>
-        <span class="tag">예체능/패션</span>
-        <span class="tag">전시/페스티벌</span>
-        <span class="tag">문학/시나리오</span>
+    <div class="tags" id="tags">
+        <!-- 태그들은 JavaScript로 동적으로 추가됩니다 -->
     </div>
-    <div class="contests">
-        <div class="contest">
-            <img src="공모전1_이미지_URL" alt="2024 지역사회 MZ세대 공익광고 공모전">
-            <div class="contest-info">
-                <div class="contest-title">2024 지역사회 MZ세대 공익광고 공모전</div>
-                <div class="contest-organizer">한국언론진흥재단</div>
-            </div>
-        </div>
-        <div class="contest">
-            <img src="공모전2_이미지_URL" alt="2024 NH투자증권 빅데이터 경진대회">
-            <div class="contest-info">
-                <div class="contest-title">2024 NH투자증권 빅데이터 경진대회</div>
-                <div class="contest-organizer">NH투자증권</div>
-            </div>
-        </div>
-        <div class="contest">
-            <img src="공모전3_이미지_URL" alt="2024 한국은행 화폐사랑 콘텐츠 공모전">
-            <div class="contest-info">
-                <div class="contest-title">2024 한국은행 화폐사랑 콘텐츠 공모전</div>
-                <div class="contest-organizer">한국은행</div>
-            </div>
-        </div>
-        <!-- 더 많은 공모전을 추가할 수 있습니다 -->
+    <div class="contests" id="contests">
+        <!-- 공모전 정보는 JavaScript로 동적으로 추가됩니다 -->
     </div>
+
+    <script>
+        const tags = [
+            "Python", "JavaScript", "SQL", "HTML/CSS", "AI", "Java", "Data", "R", "Unity",
+            "Development", "Analysis", "Big", "React", "AWS", "TensorFlow", "C++", "Learning",
+            "Software", "C#", "Blockchain", "Machine", "3D", "Tools", "IoT", "Engine", "Unreal",
+            "Video", "MongoDB", "C"
+        ];
+
+        const contestData = [
+            // 여기에 CSV 데이터를 JavaScript 객체 배열로 변환하여 넣습니다
+            // 예시:
+            {
+                name: "2021년도 체육종합 데이터 활용 경진대회",
+                organization: "국민체육진흥공단",
+                imageUrl: "https://cf-cpi.campuspick.com/activity/1633577657709460.jpg",
+                tags: ["스포츠", "교육"]
+            },
+            // ... 더 많은 데이터 ...
+        ];
+
+        function createTags() {
+            const tagsContainer = document.getElementById('tags');
+            tags.forEach(tag => {
+                const tagElement = document.createElement('span');
+                tagElement.classList.add('tag');
+                tagElement.textContent = tag;
+                tagElement.addEventListener('click', () => toggleTag(tagElement));
+                tagsContainer.appendChild(tagElement);
+            });
+        }
+
+        function toggleTag(tagElement) {
+            tagElement.classList.toggle('active');
+            filterContests();
+        }
+
+        function createContestCards() {
+            const contestsContainer = document.getElementById('contests');
+            contestData.forEach(contest => {
+                const contestElement = document.createElement('div');
+                contestElement.classList.add('contest');
+                contestElement.innerHTML = `
+                    <img src="${contest.imageUrl}" alt="${contest.name}">
+                    <div class="contest-info">
+                        <div class="contest-title">${contest.name}</div>
+                        <div class="contest-organizer">${contest.organization}</div>
+                    </div>
+                `;
+                contestsContainer.appendChild(contestElement);
+            });
+        }
+
+        function filterContests() {
+            const activeTags = Array.from(document.querySelectorAll('.tag.active')).map(tag => tag.textContent);
+            const contests = document.querySelectorAll('.contest');
+            
+            contests.forEach(contest => {
+                const contestTags = contestData.find(data => data.name === contest.querySelector('.contest-title').textContent).tags;
+                const shouldShow = activeTags.length === 0 || activeTags.some(tag => contestTags.includes(tag));
+                contest.style.display = shouldShow ? 'block' : 'none';
+            });
+        }
+
+        createTags();
+        createContestCards();
+    </script>
 </body>
 </html>
