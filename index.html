@@ -77,6 +77,13 @@
             font-size: 14px;
             color: #666;
         }
+        .tags-container {
+            margin-bottom: 20px;
+        }
+        .tags-container h3 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -87,8 +94,15 @@
         <button class="category-button" data-category="기술스택">기술스택</button>
         <button class="category-button" data-category="산업분야">산업분야</button>
     </div>
-    <div class="tags" id="tags">
-        <!-- 태그들은 JavaScript로 동적으로 추가됩니다 -->
+    <div id="tags-containers">
+        <div id="기술스택-tags" class="tags-container" style="display:none;">
+            <h3>기술스택</h3>
+            <div class="tags"></div>
+        </div>
+        <div id="산업분야-tags" class="tags-container" style="display:none;">
+            <h3>산업분야</h3>
+            <div class="tags"></div>
+        </div>
     </div>
     <div class="contests" id="contests">
         <!-- 공모전 정보는 JavaScript로 동적으로 추가됩니다 -->
@@ -109,42 +123,33 @@
                     '반도체/전자', '도시계획/인프라']
         };
 
-        let currentCategory = null;
-
         function createCategoryButtons() {
             const categoryButtons = document.querySelectorAll('.category-button');
             categoryButtons.forEach(button => {
                 button.addEventListener('click', () => {
-                    if (currentCategory === button.dataset.category) {
-                        currentCategory = null;
-                        button.classList.remove('active');
-                        document.getElementById('tags').innerHTML = '';
-                    } else {
-                        currentCategory = button.dataset.category;
-                        categoryButtons.forEach(btn => btn.classList.remove('active'));
-                        button.classList.add('active');
-                        createTags();
+                    const category = button.dataset.category;
+                    const tagsContainer = document.getElementById(`${category}-tags`);
+                    tagsContainer.style.display = tagsContainer.style.display === 'none' ? 'block' : 'none';
+                    if (tagsContainer.style.display === 'block' && tagsContainer.querySelector('.tags').children.length === 0) {
+                        createTags(category);
                     }
                     filterContests();
                 });
             });
         }
 
-        function createTags() {
-            const tagsContainer = document.getElementById('tags');
-            tagsContainer.innerHTML = '';
-            if (currentCategory) {
-                categories[currentCategory].forEach(tag => {
-                    const tagElement = document.createElement('span');
-                    tagElement.classList.add('tag');
-                    tagElement.textContent = tag;
-                    tagElement.addEventListener('click', () => toggleTag(tagElement));
-                    tagsContainer.appendChild(tagElement);
-                });
-            }
+        function createTags(category) {
+            const tagsContainer = document.querySelector(`#${category}-tags .tags`);
+            categories[category].forEach(tag => {
+                const tagElement = document.createElement('span');
+                tagElement.classList.add('tag');
+                tagElement.textContent = tag;
+                tagElement.addEventListener('click', () => toggleTag(tagElement, category));
+                tagsContainer.appendChild(tagElement);
+            });
         }
 
-        function toggleTag(tagElement) {
+        function toggleTag(tagElement, category) {
             tagElement.classList.toggle('active');
             filterContests();
         }
@@ -166,7 +171,9 @@
         }
 
         function filterContests() {
-            const activeTags = Array.from(document.querySelectorAll('.tag.active')).map(tag => tag.textContent);
+            const activeTechTags = Array.from(document.querySelectorAll('#기술스택-tags .tag.active')).map(tag => tag.textContent);
+            const activeIndustryTags = Array.from(document.querySelectorAll('#산업분야-tags .tag.active')).map(tag => tag.textContent);
+            
             const contests = document.querySelectorAll('.contest');
             
             contests.forEach(contest => {
@@ -176,13 +183,10 @@
                     const contestTechStack = contestInfo['Tech Stack'].split(' ');
                     const contestIndustry = contestInfo['Tags'].split(' ');
                     
-                    let shouldShow = true;
-                    if (currentCategory === '기술스택') {
-                        shouldShow = activeTags.length === 0 || activeTags.every(tag => contestTechStack.includes(tag));
-                    } else if (currentCategory === '산업분야') {
-                        shouldShow = activeTags.length === 0 || activeTags.every(tag => contestIndustry.includes(tag));
-                    }
+                    const techStackMatch = activeTechTags.length === 0 || activeTechTags.every(tag => contestTechStack.includes(tag));
+                    const industryMatch = activeIndustryTags.length === 0 || activeIndustryTags.every(tag => contestIndustry.includes(tag));
                     
+                    const shouldShow = techStackMatch && industryMatch;
                     contest.style.display = shouldShow ? 'block' : 'none';
                 } else {
                     console.error('Contest not found:', contestTitle);
