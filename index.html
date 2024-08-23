@@ -11,6 +11,7 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
+            background-color: #FFD580;
         }
         .header {
             background-color: #f8f8f8;
@@ -49,6 +50,8 @@
             border-radius: 5px;
             cursor: pointer;
             transition: background-color 0.3s;
+            font-size: 18px; /* 더 큰 글씨 */
+            font-weight: bold; /* 굵은 글씨 */
         }
         .category-button.active {
             background-color: #4CAF50;
@@ -152,6 +155,16 @@
         gap: 2px;
         margin-top: 5px;
         }
+
+        .difficulty-container {
+            display: flex;
+            align-items: center;
+            margin-top: 5px;
+        }
+        .difficulty-label {
+            margin-right: 5px;
+            font-weight: bold;
+        }
         .difficulty-icon {
         width: 16px;
         height: 16px;
@@ -160,8 +173,9 @@
         background-size: contain;
         }
         .contest-period {
-            font-size: 12px;
-            color: #666;
+            font-size: 16px; /* 더 큰 글씨 */
+            color: #8B0000; /* 어두운 빨간색 */
+            font-weight: bold; /* 굵은 글씨 */
             margin-top: 5px;
         }
     </style>
@@ -353,7 +367,10 @@
                 <img src="${contest.이미지url}" alt="${contest.공모전명}">
                 <h2>${contest.공모전명}</h2>
                 <p>${contest.기관명}</p>
-                ${getDifficultyIcons(contest.난이도)}
+                <div class="difficulty-container">
+                    <span class="difficulty-label">난이도:</span>
+                    ${getDifficultyIcons(contest.난이도)}
+                </div>
                 <p class="contest-period">${contest.기간}</p>
             `;
 
@@ -374,26 +391,29 @@
                     similarContestsElement.appendChild(similarContestElement);
             }); 
             contestDetailsElement.style.display = 'flex';
-    }
+        }
 
-    function createContestCards() {
-        const contestsContainer = document.getElementById('contests');
-        contestData.forEach((contest, index) => {
-            const contestElement = document.createElement('div');
-            contestElement.classList.add('contest');
-            contestElement.innerHTML = `
-                <img src="${contest.이미지url}" alt="${contest.공모전명}">
-                <div class="contest-info">
-                    <div class="contest-title">${contest.공모전명}</div>
-                    <div class="contest-organizer">${contest.기관명}</div>
-                    ${getDifficultyIcons(contest.난이도)}
-                    <p class="contest-period">${contest.기간}</p>
-                </div>
-            `;
-            contestElement.addEventListener('click', () => handleContestClick(contest));
-            contestsContainer.appendChild(contestElement);
-        });
-    }
+        function createContestCards() {
+            const contestsContainer = document.getElementById('contests');
+            contestData.forEach((contest, index) => {
+                const contestElement = document.createElement('div');
+                contestElement.classList.add('contest');
+                contestElement.innerHTML = `
+                    <img src="${contest.이미지url}" alt="${contest.공모전명}">
+                    <div class="contest-info">
+                        <div class="contest-title">${contest.공모전명}</div>
+                        <div class="contest-organizer">${contest.기관명}</div>
+                        <div class="difficulty-container">
+                            <span class="difficulty-label">난이도:</span>
+                            ${getDifficultyIcons(contest.난이도)}
+                        </div>
+                        <p class="contest-period">${contest.기간}</p>
+                    </div>
+                `;
+                contestElement.addEventListener('click', () => handleContestClick(contest));
+                contestsContainer.appendChild(contestElement);
+            });
+        }
 
     document.addEventListener('DOMContentLoaded', () => {
         if (typeof contestData !== 'undefined') {
