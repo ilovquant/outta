@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>공모전 추천 사이트</title>
     <style>
+        <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -60,6 +61,7 @@
             font-size: 14px;
             color: #666;
         }
+    </style>
     </style>
 </head>
 <body>
@@ -122,19 +124,28 @@
             
             contests.forEach(contest => {
                 const contestTitle = contest.querySelector('.contest-title').textContent;
-                const contestData = contestData.find(data => data.공모전명 === contestTitle);
-                const contestTechStack = contestData['Tech Stack'].split(' ');
-                
-                // 모든 활성 태그가 Tech Stack에 포함되어 있는지 확인
-                const shouldShow = activeTags.length === 0 || activeTags.every(tag => contestTechStack.includes(tag));
-                contest.style.display = shouldShow ? 'block' : 'none';
+                const contestInfo = contestData.find(data => data.공모전명 === contestTitle);
+                if (contestInfo) {
+                    const contestTechStack = contestInfo['Tech Stack'].split(' ');
+                    
+                    // 모든 활성 태그가 Tech Stack에 포함되어 있는지 확인
+                    const shouldShow = activeTags.length === 0 || activeTags.every(tag => contestTechStack.includes(tag));
+                    contest.style.display = shouldShow ? 'block' : 'none';
+                } else {
+                    console.error('Contest not found:', contestTitle);
+                    contest.style.display = 'none';
+                }
             });
         }
 
         // 페이지 로드 시 태그와 공모전 카드 생성
         document.addEventListener('DOMContentLoaded', () => {
-            createTags();
-            createContestCards();
+            if (typeof contestData !== 'undefined') {
+                createTags();
+                createContestCards();
+            } else {
+                console.error('contestData is not defined. Please check the contestData.js file.');
+            }
         });
     </script>
 </body>
