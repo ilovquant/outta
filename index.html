@@ -27,17 +27,24 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            transition: background-color 0.3s;
         }
         .category-button.active {
             background-color: #4CAF50;
             color: white;
+        }
+        .tags-container {
+            margin-bottom: 20px;
+        }
+        .tags-container h3 {
+            text-align: center;
+            margin-bottom: 10px;
         }
         .tags {
             display: flex;
             justify-content: center;
             flex-wrap: wrap;
             gap: 10px;
-            margin-bottom: 20px;
         }
         .tag {
             background-color: #e0e0e0;
@@ -76,13 +83,6 @@
         .contest-organizer {
             font-size: 14px;
             color: #666;
-        }
-        .tags-container {
-            margin-bottom: 20px;
-        }
-        .tags-container h3 {
-            text-align: center;
-            margin-bottom: 10px;
         }
     </style>
 </head>
@@ -129,7 +129,13 @@
                 button.addEventListener('click', () => {
                     const category = button.dataset.category;
                     const tagsContainer = document.getElementById(`${category}-tags`);
-                    tagsContainer.style.display = tagsContainer.style.display === 'none' ? 'block' : 'none';
+                    
+                    // 버튼 활성화 상태 토글
+                    button.classList.toggle('active');
+                    
+                    // 태그 컨테이너 표시/숨김 토글
+                    tagsContainer.style.display = button.classList.contains('active') ? 'block' : 'none';
+                    
                     if (tagsContainer.style.display === 'block' && tagsContainer.querySelector('.tags').children.length === 0) {
                         createTags(category);
                     }
