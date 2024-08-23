@@ -197,11 +197,15 @@
         }
         .search-container {
             display: flex;
-            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
         }
+        
         #search-input {
-            padding: 5px 10px;
-            border: 1px solid #ccc;
+            width: 300px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
             border-radius: 4px;
         }
         #search-button {
@@ -229,6 +233,10 @@
         <button class="category-button" data-category="기술스택" aria-label="기술스택 카테고리">기술스택</button>
         <button class="category-button" data-category="산업분야" aria-label="산업분야 카테고리">산업분야</button>
         <button id="search-button" aria-label="공모전 검색">검색</button>
+    </div>
+
+    <div class="search-container">
+        <input type="text" id="search-input" placeholder="공모전 검색...">
     </div>
     
     <div id="tags-containers">
@@ -478,19 +486,19 @@
             }
         });
 
-        document.addEventListener('DOMContentLoaded', () => {
-            if (typeof contestData !== 'undefined') {
-                createCategoryButtons();
-
-                const documents = contestData.map(contest => `${contest['Tech Stack']} ${contest['Tags']}`);
-                tfidfData = calculateTFIDF(documents);
-
-                createContestCards();
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('search-input');
+            const searchButton = document.getElementById('search-button');
+    
+            if (searchButton && searchInput) {
+                searchButton.addEventListener('click', searchContests);
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        searchContests();
+                    }
+                });
             } else {
-                console.error('contestData is not defined. Please check the contestData.js file.');
-                const errorMessage = document.getElementById('error-message');
-                errorMessage.textContent = '죄송합니다. 공모전 데이터를 불러오는 데 문제가 발생했습니다. 잠시 후 다시 시도해주세요.';
-                errorMessage.style.display = 'block';
+                console.error("Search elements not found");
             }
         });
 </script>
