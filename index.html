@@ -84,7 +84,7 @@
         <h1>공모전 추천 사이트</h1>
     </div>
     <div class="category-buttons">
-        <button class="category-button active" data-category="기술스택">기술스택</button>
+        <button class="category-button" data-category="기술스택">기술스택</button>
         <button class="category-button" data-category="산업분야">산업분야</button>
     </div>
     <div class="tags" id="tags">
@@ -95,7 +95,7 @@
     </div>
 
     <!-- GitHub에서 호스팅되는 contestData.js 파일을 참조 -->
-    <script src="https://ilovquant.io/outta/contestData.js"></script>
+    <script src="https://ilovquant/outta/contestData.js"></script>
     
     <script>
         const categories = {
@@ -109,16 +109,22 @@
                     '반도체/전자', '도시계획/인프라']
         };
 
-        let currentCategory = '기술스택';
+        let currentCategory = null;
 
         function createCategoryButtons() {
             const categoryButtons = document.querySelectorAll('.category-button');
             categoryButtons.forEach(button => {
                 button.addEventListener('click', () => {
-                    categoryButtons.forEach(btn => btn.classList.remove('active'));
-                    button.classList.add('active');
-                    currentCategory = button.dataset.category;
-                    createTags();
+                    if (currentCategory === button.dataset.category) {
+                        currentCategory = null;
+                        button.classList.remove('active');
+                        document.getElementById('tags').innerHTML = '';
+                    } else {
+                        currentCategory = button.dataset.category;
+                        categoryButtons.forEach(btn => btn.classList.remove('active'));
+                        button.classList.add('active');
+                        createTags();
+                    }
                     filterContests();
                 });
             });
@@ -127,13 +133,15 @@
         function createTags() {
             const tagsContainer = document.getElementById('tags');
             tagsContainer.innerHTML = '';
-            categories[currentCategory].forEach(tag => {
-                const tagElement = document.createElement('span');
-                tagElement.classList.add('tag');
-                tagElement.textContent = tag;
-                tagElement.addEventListener('click', () => toggleTag(tagElement));
-                tagsContainer.appendChild(tagElement);
-            });
+            if (currentCategory) {
+                categories[currentCategory].forEach(tag => {
+                    const tagElement = document.createElement('span');
+                    tagElement.classList.add('tag');
+                    tagElement.textContent = tag;
+                    tagElement.addEventListener('click', () => toggleTag(tagElement));
+                    tagsContainer.appendChild(tagElement);
+                });
+            }
         }
 
         function toggleTag(tagElement) {
@@ -158,11 +166,7 @@
         }
 
         function filterContests() {
-            const activeTags = {
-                '기술스택': Array.from(document.querySelectorAll('.tag.active')).filter(tag => categories['기술스택'].includes(tag.textContent)).map(tag => tag.textContent),
-                '산업분야': Array.from(document.querySelectorAll('.tag.active')).filter(tag => categories['산업분야'].includes(tag.textContent)).map(tag => tag.textContent)
-            };
-            
+            const activeTags = Array.from(document.querySelectorAll('.tag.active')).map(tag => tag.textContent);
             const contests = document.querySelectorAll('.contest');
             
             contests.forEach(contest => {
@@ -172,10 +176,13 @@
                     const contestTechStack = contestInfo['Tech Stack'].split(' ');
                     const contestIndustry = contestInfo['Tags'].split(' ');
                     
-                    const techStackMatch = activeTags['기술스택'].length === 0 || activeTags['기술스택'].every(tag => contestTechStack.includes(tag));
-                    const industryMatch = activeTags['산업분야'].length === 0 || activeTags['산업분야'].every(tag => contestIndustry.includes(tag));
+                    let shouldShow = true;
+                    if (currentCategory === '기술스택') {
+                        shouldShow = activeTags.length === 0 || activeTags.every(tag => contestTechStack.includes(tag));
+                    } else if (currentCategory === '산업분야') {
+                        shouldShow = activeTags.length === 0 || activeTags.every(tag => contestIndustry.includes(tag));
+                    }
                     
-                    const shouldShow = techStackMatch && industryMatch;
                     contest.style.display = shouldShow ? 'block' : 'none';
                 } else {
                     console.error('Contest not found:', contestTitle);
@@ -184,11 +191,10 @@
             });
         }
 
-        // 페이지 로드 시 카테고리 버튼, 태그, 공모전 카드 생성
+        // 페이지 로드 시 카테고리 버튼, 공모전 카드 생성
         document.addEventListener('DOMContentLoaded', () => {
             if (typeof contestData !== 'undefined') {
                 createCategoryButtons();
-                createTags();
                 createContestCards();
             } else {
                 console.error('contestData is not defined. Please check the contestData.js file.');
