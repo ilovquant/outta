@@ -92,11 +92,14 @@
             border-radius: 8px;
             overflow: hidden;
             transition: transform 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
             cursor: pointer;
+            background-color: #FFF5E6; /* 밝은 크림색 배경 */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         .contest:hover {
             transform: translateY(-5px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
         .contest img {
             width: 100%;
@@ -104,21 +107,22 @@
             object-fit: cover;
         }
         .contest-info {
-            padding: 10px;
+            padding: 15px;
         }
         .contest-title {
             font-weight: bold;
             margin-bottom: 5px;
+            color: #333;
         }
         .contest-organizer {
             font-size: 14px;
             color: #666;
+            margin-bottom: 10px;
         }
         .contest-details {
-            display: flex;
-            margin-top: 20px;
-            padding: 20px;
-            background-color: #f8f8f8;
+            background-color: #FFF5E6;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
         }
         .contest-image {
             flex: 1;
@@ -138,9 +142,11 @@
             flex-direction: column;
             margin-bottom: 20px;
             padding: 10px;
-            background-color: white;
+            background-color: #FFF9E6;
             border-radius: 8px;
             cursor: pointer;
+            border: 1px solid #E6D9B8;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         .similar-contest img {
             width: 100%;
@@ -159,11 +165,12 @@
         .difficulty-container {
             display: flex;
             align-items: center;
-            margin-top: 5px;
+            margin-top: 10px;
         }
         .difficulty-label {
             margin-right: 5px;
             font-weight: bold;
+            color: #444;
         }
         .difficulty-icon {
         width: 16px;
@@ -177,6 +184,10 @@
             color: #8B0000; /* 어두운 빨간색 */
             font-weight: bold; /* 굵은 글씨 */
             margin-top: 5px;
+        }
+        .similar-contest:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
         }
     </style>
 </head>
