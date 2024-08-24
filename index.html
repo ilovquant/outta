@@ -518,7 +518,7 @@
             `;
 
             similarContestsElement.innerHTML = ''; // 기존 내용 초기화
-            const similarContests = findSimilarContests(contest, contestData, tfidfData);
+            const similarContests = findSimilarContests(contest, contestData, tfidfData)
                 .filter(similarContest => similarContest !== contest)
                 .slice(0, 5);
             
