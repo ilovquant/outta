@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>공모전 추천 사이트</title>
     <style>
-        
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -22,6 +21,12 @@
             background-color: #FFD580;
             margin-top: 0;
         }
+
+        .tag.disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
         
         .header {
             background-color: #f8f8f8;
@@ -331,32 +336,74 @@
             });
         }
 
+        let activeTags = new Set();
+        let activeIndustryTags = new Set(); 
         function toggleTag(tagElement) {
+            if (tagElement.classList.contains('disabled')) {
+                return; // 비활성화된 태그는 토글하지 않음
+            }
+    
+            const tagText = tagElement.textContent;
+            const tagCategory = tagElement.closest('.tags-container').id.includes('기술스택') ? activeTechTags : activeIndustryTags;
+    
+            if (tagElement.classList.contains('active')) {
+                tagCategory.delete(tagText);
+            } else {
+                tagCategory.add(tagText);
+            }
+    
             tagElement.classList.toggle('active');
             filterContests();
         }
-
+        
+        
         function filterContests() {
-            const activeTechTags = Array.from(document.querySelectorAll('#기술스택-tags .tag.active')).map(tag => tag.textContent);
-            const activeIndustryTags = Array.from(document.querySelectorAll('#산업분야-tags .tag.active')).map(tag => tag.textContent);
             
             const contests = document.querySelectorAll('.contest');
+            let availableTags = new Set();
+            let availableIndustryTags = new Set();
             
             contests.forEach(contest => {
                 const contestTitle = contest.querySelector('.contest-title').textContent;
                 const contestInfo = contestData.find(data => data.공모전명 === contestTitle);
                 if (contestInfo) {
-                    const contestTechStack = contestInfo['Tech Stack'].split(' ');
-                    const contestIndustry = contestInfo['Tags'].split(' ');
+                    const contestTechStack = new Set(contestInfo['Tech Stack'].split(' '));
+                    const contestIndustry = new Set(contestInfo['Tags'].split(' '));
                     
-                    const techStackMatch = activeTechTags.length === 0 || activeTechTags.every(tag => contestTechStack.includes(tag));
-                    const industryMatch = activeIndustryTags.length === 0 || activeIndustryTags.every(tag => contestIndustry.includes(tag));
+                    const techStackMatch = activeTechTags.size === 0 || Array.from(activeTechTags).every(tag => contestTechStack.has(tag));
+                    const industryMatch = activeIndustryTags.size === 0 || Array.from(activeIndustryTags).every(tag => contestIndustry.has(tag));
                     
                     const shouldShow = techStackMatch && industryMatch;
                     contest.style.display = shouldShow ? 'block' : 'none';
+
+                    if (shouldShow) {
+                        contestTechStack.forEach(tag => availableTechTags.add(tag));
+                        contestIndustry.forEach(tag => availableIndustryTags.add(tag));
+                    }
+                    
                 } else {
                     console.error('Contest not found:', contestTitle);
                     contest.style.display = 'none';
+                }
+            });
+
+            updateTagsStatus(availableTechTags, availableIndustryTags);
+        }
+
+        function updateTagsStatus(availableTechTags, availableIndustryTags) {
+            updateCategoryTagsStatus('기술스택', availableTechTags);
+            updateCategoryTagsStatus('산업분야', availableIndustryTags);
+        }
+
+        function updateCategoryTagsStatus(category, availableTags) {
+            const tags = document.querySelectorAll(`#${category}-tags .tag`);
+            tags.forEach(tag => {
+                if (availableTags.has(tag.textContent)) {
+                    tag.classList.remove('disabled');
+                    tag.style.backgroundColor = '';
+                } else {
+                    tag.classList.add('disabled');
+                    tag.style.backgroundColor = 'gray';
                 }
             });
         }
