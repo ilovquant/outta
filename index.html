@@ -121,6 +121,31 @@
             background-color: #FFF5E6; /* 밝은 크림색 배경 */
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             margin-bottom: 20px;
+            position: relative; 
+            
+        }
+        .heart-icon { 
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .favorite-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            z-index: 1000;
+        }
+        
+        .favorite-button img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
         .contest:hover {
             transform: translateY(-5px);
@@ -349,6 +374,9 @@
     <!-- GitHub에서 호스팅되는 contestData.js 파일을 참조 -->
     <script src="https://ilovquant.github.io/outta/contestData.js"></script>
 
+    <div class="favorite-button">
+        <img src="./bunny1.png" alt="Favorite contests">
+    </div>
     <script>
         const categories = {
             '기술스택': ["Python", "JavaScript", "SQL", "HTML/CSS", "AI", "Java", "Data", "R", "Unity",
@@ -613,6 +641,8 @@
             }
         }
 
+        let favoriteContests = new Set();
+        
         function createContestCards() {
             const contestsContainer = document.getElementById('contests');
             contestData.forEach((contest) => {
@@ -636,8 +666,37 @@
                         <p class="d-day">${dDay}</p>
                     </div>
                 `;
+                const heartIcon = document.createElement('span');
+                heartIcon.classList.add('heart-icon');
+                heartIcon.textContent = '🤍';
+                heartIcon.addEventListener('click', (e) => {
+                    e.stopPropagation(); // 부모 요소의 클릭 이벤트 방지
+                    toggleFavorite(contest, heartIcon);
+                });
+                contestElement.appendChild(heartIcon);
+                
                 contestElement.addEventListener('click', () => handleContestClick(contest));
                 contestsContainer.appendChild(contestElement);
+      
+            });
+        }
+
+        function toggleFavorite(contest, heartIcon) {
+            if (favoriteContests.has(contest)) {
+                favoriteContests.delete(contest);
+                heartIcon.textContent = '🤍';
+            } else {
+                favoriteContests.add(contest);
+                heartIcon.textContent = '🧡';
+            }
+        }
+
+        function showOnlyFavorites() {
+            const contests = document.querySelectorAll('.contest');
+            contests.forEach(contest => {
+                const contestTitle = contest.querySelector('.contest-title').textContent;
+                const isFavorite = Array.from(favoriteContests).some(c => c.공모전명 === contestTitle);
+                contest.style.display = isFavorite ? 'block' : 'none';
             });
         }
         
@@ -653,6 +712,8 @@
             
             const searchInput = document.getElementById('search-input');
             const searchButton = document.getElementById('search-button');
+            const favoriteButton = document.querySelector('.favorite-button');
+            favoriteButton.addEventListener('click', showOnlyFavorites);
     
             if (searchButton && searchInput) {
                 searchButton.addEventListener('click', searchContests);
