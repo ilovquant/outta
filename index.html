@@ -426,7 +426,6 @@
 
             const similarContests = findSimilarContests(contest, contestData, tfidfData);
 
-            similarContestsElement.innerHTML = '<h3>유사한 공모전</h3>';
             similarContests.forEach(similarContest => {
                 const similarContestElement = document.createElement('div');
                 similarContestElement.classList.add('similar-contest');
