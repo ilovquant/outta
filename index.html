@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>공모전 추천 사이트</title>
+    <style>
+        /* 기존 스타일 유지 */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #FFD580;
+        }
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #FFD580;
+            margin-top: 0;
+        }
+        .header {
+            background-color: #f8f8f8;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+        }
+        .logo-container {
+            text-align: center;
+            margin-bottom: 0; 
+          
+        }
+
+        .logo {
+        /* width와 height 속성 제거 */
+        max-width: 100%; /* 컨테이너를 벗어나지 않도록 설정 */
+        height: auto; /* 비율 유지 */
+        display: block;
+        }
+
+        .header h1 {
+            margin: 0;
+            flex-grow: 1;
+            text-align: center;
+        }
+        .category-buttons {
+            display: flex;
+            align-items: flex-start;
+            padding: 20px;
+            background-color: #FFD580;
+            gap: 10px
+        }
+        .category-button {
+            padding: 10px 20px;
+            margin-bottom: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 18px; /* 더 큰 글씨 */
+            font-weight: bold; /* 굵은 글씨 */
+        }
+        .category-button.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .tags-container {
+            margin-bottom: 20px;
+        }
+        .tags-container h3 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            gap: 10px;
+            padding-left: 20px;
+            
+        }
+        .tag {
+            background-color: #F9840C;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            color: white;
+        }
+        .tag.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .contests {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        .contest {
+            border: 2px solid #8B0000;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            background-color: #FFF5E6; /* 밝은 크림색 배경 */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .contest:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .contest img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        .contest-info {
+            padding: 15px;
+        }
+        .contest-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        .contest-organizer {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .contest-details {
+            border-bottom: 2px solid #8B0000;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+        .contest-image {
+            flex: 1;
+            max-width: 50%;
+        }
+        .contest-image img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+        .similar-contests {
+            flex: 1;
+            margin-left: 20px;
+        }
+        .similar-contest {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #FFF9E6;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 1px solid #E6D9B8;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .similar-contest img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        
+        .difficulty {
+        display: flex;
+        gap: 2px;
+        margin-top: 5px;
+        }
+
+        .difficulty-container {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .difficulty-label {
+            margin-right: 5px;
+            font-weight: bold;
+            color: #444;
+        }
+        .difficulty-icon {
+        width: 16px;
+        height: 16px;
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23FFA500"><path d="M12 2C12 2 14 5 14 9C14 13 12 16 12 16C12 16 10 13 10 9C10 5 12 2 12 2ZM12 19C12 19 15 20 15 22C15 23 14 23 12 23C10 23 9 23 9 22C9 20 12 19 12 19Z"/></svg>');
+        background-repeat: no-repeat;
+        background-size: contain;
+        }
+        .contest-period {
+            font-size: 16px; /* 더 큰 글씨 */
+            color: #8B0000; /* 어두운 빨간색 */
+            font-weight: bold; /* 굵은 글씨 */
+            margin-top: 5px;
+        }
+        .similar-contest:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        .search-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            align-items: center;
+        }
+        
+        #search-input {
+            width: 300px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        #search-button {
+            padding: 5px 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="error-message" style="display: none; color: red; text-align: center; padding: 20px;"></div>
+    
+    <header class="header">
+        <div class="logo-container">
+            <img src="./bunny.png" alt="BunnyTech Logo" class="logo">
+        </div>
+       
+    </header>
+
+    
+
+    <div class="top-bar">
+        <div class="category-buttons">
+            <button class="category-button" data-category="기술스택" aria-label="기술스택 카테고리">기술스택</button>
+            <button class="category-button" data-category="산업분야" aria-label="산업분야 카테고리">산업분야</button>
+        </div>
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="공모전 검색...">
+            <button id="search-button" aria-label="공모전 검색">검색</button>
+        </div>
+    </div>
+    
+    <div id="tags-containers">
+        <div id="기술스택-tags" class="tags-container" style="display:none;">
+            <div class="tags"></div>
+        </div>
+        <div id="산업분야-tags" class="tags-container" style="display:none;">
+            <div class="tags"></div>
+        </div>
+    </div>
+
+    <div id="contest-details" class="contest-details" style="display: none;">
+        <div class="contest-image">
+            <!-- 선택된 공모전 이미지가 여기에 표시됩니다 -->
+        </div>
+        <div class="similar-contests">
+            <!-- 유사한 공모전 목록이 여기에 동적으로 추가됩니다 -->
+        </div>
+    </div>
+
+    <div class="contests" id="contests">
+        <!-- 공모전 정보는 JavaScript로 동적으로 추가됩니다 -->
+    </div>
+
+    <!-- GitHub에서 호스팅되는 contestData.js 파일을 참조 -->
+    <script src="https://ilovquant.github.io/outta/contestData.js"></script>
+
+    <script>
+        const categories = {
+            '기술스택': ["Python", "JavaScript", "SQL", "HTML/CSS", "AI", "Java", "Data", "R", "Unity",
+                    "Development", "Analysis", "Big", "React", "AWS", "TensorFlow", "C++", "Learning",
+                    "Software", "C#", "Blockchain", "Machine", "3D", "Tools", "IoT", "Engine", "Unreal",
+                    "Video", "MongoDB", "C"],
+            '산업분야': ['정보통신', '제조업', '의료/바이오', '에너지', '농업/식품', '금융/핀테크', '건설/건축', '환경', 
+                    '문화/예술', '교통', '교육', '관광/레저', '방송/미디어', '패션/뷰티', '자동차/모빌리티', '우주/항공', 
+                    '스포츠', '사회복지', '법률/정책', '화학', '해양/수산', '무역/국제', '공공안전', '게임/엔터테인먼트', 
+                    '반도체/전자', '도시계획/인프라']
+        };
+
+        let tfidfData;
+
+        function createCategoryButtons() {
+            const categoryButtons = document.querySelectorAll('.category-button');
+            categoryButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const category = button.dataset.category;
+                    const tagsContainer = document.getElementById(`${category}-tags`);
+                    
+                    button.classList.toggle('active');
+                    tagsContainer.style.display = button.classList.contains('active') ? 'block' : 'none';
+                    
+                    if (tagsContainer.style.display === 'block' && tagsContainer.querySelector('.tags').children.length === 0) {
+                        createTags(category);
+                    }
+                    filterContests();
+                });
+            });
+        }
+
+        function createTags(category) {
+            const tagsContainer = document.querySelector(`#${category}-tags .tags`);
+            categories[category].forEach(tag => {
+                const tagElement = document.createElement('span');
+                tagElement.classList.add('tag');
+                tagElement.textContent = tag;
+                tagElement.addEventListener('click', () => toggleTag(tagElement));
+                tagsContainer.appendChild(tagElement);
+            });
+        }
+
+        function toggleTag(tagElement) {
+            tagElement.classList.toggle('active');
+            filterContests();
+        }
+
+        function filterContests() {
+            const activeTechTags = Array.from(document.querySelectorAll('#기술스택-tags .tag.active')).map(tag => tag.textContent);
+            const activeIndustryTags = Array.from(document.querySelectorAll('#산업분야-tags .tag.active')).map(tag => tag.textContent);
+            
+            const contests = document.querySelectorAll('.contest');
+            
+            contests.forEach(contest => {
+                const contestTitle = contest.querySelector('.contest-title').textContent;
+                const contestInfo = contestData.find(data => data.공모전명 === contestTitle);
+                if (contestInfo) {
+                    const contestTechStack = contestInfo['Tech Stack'].split(' ');
+                    const contestIndustry = contestInfo['Tags'].split(' ');
+                    
+                    const techStackMatch = activeTechTags.length === 0 || activeTechTags.every(tag => contestTechStack.includes(tag));
+                    const industryMatch = activeIndustryTags.length === 0 || activeIndustryTags.every(tag => contestIndustry.includes(tag));
+                    
+                    const shouldShow = techStackMatch && industryMatch;
+                    contest.style.display = shouldShow ? 'block' : 'none';
+                } else {
+                    console.error('Contest not found:', contestTitle);
+                    contest.style.display = 'none';
+                }
+            });
+        }
+
+        function calculateTFIDF(documents) {
+            const wordFrequency = {};
+            const wordInDocCount = {};
+            const tfidf = {};
+
+            documents.forEach((doc, docIndex) => {
+                const words = doc.split(' ');
+                const uniqueWords = new Set(words);
+                
+                uniqueWords.forEach(word => {
+                    wordInDocCount[word] = (wordInDocCount[word] || 0) + 1;
+                });
+
+                words.forEach(word => {
+                    if (!wordFrequency[docIndex]) wordFrequency[docIndex] = {};
+                    wordFrequency[docIndex][word] = (wordFrequency[docIndex][word] || 0) + 1;
+                });
+            });
+
+            Object.keys(wordFrequency).forEach(docIndex => {
+                tfidf[docIndex] = {};
+                Object.keys(wordFrequency[docIndex]).forEach(word => {
+                    const tf = wordFrequency[docIndex][word] / documents[docIndex].split(' ').length;
+                    const idf = Math.log(documents.length / wordInDocCount[word]);
+                    tfidf[docIndex][word] = tf * idf;
+                });
+            });
+
+            return tfidf;
+        }
+
+        function calculateCosineSimilarity(vec1, vec2) {
+            const intersection = Object.keys(vec1).filter(key => vec2.hasOwnProperty(key));
+            const dotProduct = intersection.reduce((sum, key) => sum + vec1[key] * vec2[key], 0);
+            const mag1 = Math.sqrt(Object.values(vec1).reduce((sum, val) => sum + val * val, 0));
+            const mag2 = Math.sqrt(Object.values(vec2).reduce((sum, val) => sum + val * val, 0));
+            return dotProduct / (mag1 * mag2);
+        }
+
+        function findSimilarContests(selectedContest, allContests, tfidfData) {
+            const similarities = allContests.map((contest, index) => {
+                if (contest === selectedContest) return { contest, similarity: -1 };
+                const similarity = calculateCosineSimilarity(tfidfData[index.toString()], tfidfData[contestData.indexOf(selectedContest).toString()]);
+                return { contest, similarity };
+            });
+
+            return similarities
+                .sort((a, b) => b.similarity - a.similarity)
+                .slice(0, 5)
+                .map(item => item.contest);
+        }
+
+        function getDifficultyIcons(difficulty) {
+            const difficultyLevels = {
+                '매우 쉬움': 1,
+                '쉬움': 2,
+                '보통': 3,
+                '어려움': 4,
+                '매우 어려움': 5
+            };
+            const iconCount = difficultyLevels[difficulty] || 0;
+            return '<div class="difficulty">' + '🔥'.repeat(iconCount) + '</div>';
+        }
+
+        function handleContestClick(contest) {
+            const contestDetailsElement = document.getElementById('contest-details');
+            const contestImageElement = contestDetailsElement.querySelector('.contest-image');
+            const similarContestsElement = contestDetailsElement.querySelector('.similar-contests');
+
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+            
+            contestImageElement.innerHTML = `
+                <img src="${contest.이미지url}" alt="${contest.공모전명}">
+                <h2>${contest.공모전명}</h2>
+                <p>${contest.기관명}</p>
+                <div class="difficulty-container">
+                    <span class="difficulty-label">난이도:</span>
+                    ${getDifficultyIcons(contest.난이도)}
+                </div>
+                <p class="contest-period">${contest.기간}</p>
+            `;
+
+            const similarContests = findSimilarContests(contest, contestData, tfidfData);
+
+            similarContests.forEach(similarContest => {
+                const similarContestElement = document.createElement('div');
+                similarContestElement.classList.add('similar-contest');
+                similarContestElement.innerHTML = `
+                    <img src="${similarContest.이미지url}" alt="${similarContest.공모전명}">
+                    <div class="contest-title">${similarContest.공모전명}</div>
+                    <div class="contest-organizer">${similarContest.기관명}</div>
+                    ${getDifficultyIcons(similarContest.난이도)}
+                    <p class="contest-period">${similarContest.기간}</p>
+                    `;
+                    similarContestElement.addEventListener('click', () => handleContestClick(similarContest));
+                    similarContestsElement.appendChild(similarContestElement);
+            }); 
+            contestDetailsElement.style.display = 'flex';
+        }
+
+        function searchContests() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const contests = document.querySelectorAll('.contest');
+    
+            contests.forEach(contest => {
+                const title = contest.querySelector('.contest-title').textContent.toLowerCase();
+                const organizer = contest.querySelector('.contest-organizer').textContent.toLowerCase();
+                if (title.includes(searchTerm) || organizer.includes(searchTerm)) {
+                    contest.style.display = 'block';
+                } else {
+                    contest.style.display = 'none';
+                }
+            });
+        }
+        function createContestCards() {
+            const contestsContainer = document.getElementById('contests');
+            contestData.forEach((contest, index) => {
+                const contestElement = document.createElement('div');
+                contestElement.classList.add('contest');
+                contestElement.innerHTML = `
+                    <img src="${contest.이미지url}" alt="${contest.공모전명}">
+                    <div class="contest-info">
+                        <div class="contest-title">${contest.공모전명}</div>
+                        <div class="contest-organizer">${contest.기관명}</div>
+                        <div class="difficulty-container">
+                            <span class="difficulty-label">난이도:</span>
+                            ${getDifficultyIcons(contest.난이도)}
+                        </div>
+                        <p class="contest-period">${contest.기간}</p>
+                    </div>
+                `;
+                contestElement.addEventListener('click', () => handleContestClick(contest));
+                contestsContainer.appendChild(contestElement);
+            });
+        }
+        document.getElementById('search-button').addEventListener('click', searchContests);
+        document.getElementById('search-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchContests();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('search-input');
+            const searchButton = document.getElementById('search-button');
+    
+            if (searchButton && searchInput) {
+                searchButton.addEventListener('click', searchContests);
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        searchContests();
+                    }
+                });
+            } else {
+                console.error("Search elements not found");
+            }
+        });
+        function initializeApp() {
+        if (typeof contestData === 'undefined') {
+            document.getElementById('error-message').style.display = 'block';
+            document.getElementById('error-message').textContent = 'Contest data could not be loaded. Please check your internet connection and refresh the page.';
+            return;
+        }
+
+        createCategoryButtons();
+        createContestCards();
+        
+        // TF-IDF 계산
+        const documents = contestData.map(contest => `${contest.공모전명} ${contest.기관명} ${contest['Tech Stack']} ${contest['Tags']}`);
+        tfidfData = calculateTFIDF(documents);
+
+        // 검색 기능 설정
+        const searchInput = document.getElementById('search-input');
+        const searchButton = document.getElementById('search-button');
+
+        if (searchButton && searchInput) {
+            searchButton.addEventListener('click', searchContests);
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchContests();
+                }
+            });
+        } else {
+            console.error("Search elements not found");
+        }
+    }
+
+    // DOM이 로드된 후 앱 초기화
+    document.addEventListener('DOMContentLoaded', initializeApp);
+</script>
