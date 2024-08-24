@@ -184,8 +184,9 @@
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             cursor: pointer;
             background-color: #FFF5E6;
-            height: 150px; /* 고정 높이 */
+            height: 180px; /* 고정 높이 */
             display: flex;
+            margin-bottom: 10px
         }
         
         .similar-contest img {
@@ -236,6 +237,16 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             white-space: pre-wrap;
         }
+
+        .contest-introduction pre {
+            white-space: pre-wrap;       /* CSS3 */
+            white-space: -moz-pre-wrap;  /* Firefox */
+            white-space: -pre-wrap;      /* Opera <7 */
+            white-space: -o-pre-wrap;    /* Opera 7 */
+            word-wrap: break-word;       /* IE */
+            max-width: 650px;            /* 최대 가로 길이 제한 */
+            overflow-x: hidden;          /* 가로 스크롤바 제거 */
+        }
         .similar-contest:hover {
             transform: translateY(-5px);
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
@@ -246,7 +257,22 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            font-size: 0.9em;
         }
+        .similar-contest .contest-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .similar-contest .contest-organizer {
+            margin-bottom: 5px;
+        }
+
+        .similar-contest .contest-period,
+        .similar-contest .d-day {
+            margin: 2px 0;
+        }
+        
         .search-container {
             display: flex;
             justify-content: center;
