@@ -580,7 +580,7 @@
 
         function createContestCards() {
             const contestsContainer = document.getElementById('contests');
-            contestData.forEach((contest, index) => {
+            contestData.forEach((contest) => {
                 const contestElement = document.createElement('div');
                 contestElement.classList.add('contest');
         
@@ -614,6 +614,8 @@
         });
 
         document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            
             const searchInput = document.getElementById('search-input');
             const searchButton = document.getElementById('search-button');
     
@@ -641,22 +643,7 @@
         // TF-IDF 계산
         const documents = contestData.map(contest => `${contest.공모전명} ${contest.기관명} ${contest['Tech Stack']} ${contest['Tags']}`);
         tfidfData = calculateTFIDF(documents);
-
-        // 검색 기능 설정
-        const searchInput = document.getElementById('search-input');
-        const searchButton = document.getElementById('search-button');
-
-        if (searchButton && searchInput) {
-            searchButton.addEventListener('click', searchContests);
-            searchInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    searchContests();
-                }
-            });
-        } else {
-            console.error("Search elements not found");
         }
-    }
 
     // DOM이 로드된 후 앱 초기화
     document.addEventListener('DOMContentLoaded', initializeApp);
