@@ -245,7 +245,9 @@
     
     <header class="header">
         <div class="logo-container">
-            <img src="./bunny.png" alt="BunnyTech Logo" class="logo">
+            <a href="index.html">
+                <img src="./bunny.png" alt="BunnyTech Logo" class="logo">
+            </a>
         </div>
        
     </header>
@@ -477,9 +479,11 @@
             });
         }
         function calculateDDay(endDate) {
-            const today = new Date();
-            const end = new Date(endDate);
-            const timeDiff = end - today;
+            const endDate = new Date(endDateStr.replace(/년|월/g, '-').replace('일', '').trim());
+            const currentDate = new Date();
+            currentDate.setHours(0, 0, 0, 0);
+    
+            const timeDiff = endDate.getTime() - currentDate.getTime();
             const dayDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
     
             if (dayDiff < 0) {
