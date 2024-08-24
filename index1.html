@@ -518,28 +518,7 @@
                 contestsContainer.appendChild(contestElement);
             });
         }
-        function createContestCards() {
-            const contestsContainer = document.getElementById('contests');
-            contestData.forEach((contest, index) => {
-                const contestElement = document.createElement('div');
-                contestElement.classList.add('contest');
-                contestElement.innerHTML = `
-                    <img src="${contest.이미지url}" alt="${contest.공모전명}">
-                    <div class="contest-info">
-                        <div class="contest-title">${contest.공모전명}</div>
-                        <div class="contest-organizer">${contest.기관명}</div>
-                        <div class="difficulty-container">
-                            <span class="difficulty-label">난이도:</span>
-                            ${getDifficultyIcons(contest.난이도)}
-                        </div>
-                        <p class="contest-period">${contest.기간}</p>
-                        <p class="d-day"></p> <!-- D-Day 표시 요소 추가 -->
-                    </div>
-                `;
-                contestElement.addEventListener('click', () => handleContestClick(contest));
-                contestsContainer.appendChild(contestElement);
-            });
-        }
+        
         document.getElementById('search-button').addEventListener('click', searchContests);
         document.getElementById('search-input').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
