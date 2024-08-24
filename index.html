@@ -134,6 +134,10 @@
         .contest-info {
             padding: 15px;
         }
+        .contest-info-detailed { 
+            flex: 1; 
+            margin-right: 20px;
+        }
         .contest-title {
             font-weight: bold;
             margin-bottom: 5px;
@@ -145,9 +149,12 @@
             margin-bottom: 10px;
         }
         .contest-details {
-            border-bottom: 2px solid #8B0000;
-            padding-bottom: 20px;
-            margin-bottom: 20px;
+            display: flex;
+            padding: 20px;
+            margin: 20px;
+            background-color: #FFF5E6;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         .contest-image {
             flex: 1;
@@ -160,25 +167,22 @@
         }
         .similar-contests {
             flex: 1;
-            margin-left: 20px;
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px; 
         }
         .similar-contest {
-            display: flex;
-            flex-direction: column;
-            margin-bottom: 20px;
-            padding: 10px;
-            background-color: #FFF9E6;
+            border: 2px solid #8B0000;
             border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
             cursor: pointer;
-            border: 1px solid #E6D9B8;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            background-color: #FFF5E6;
         }
         .similar-contest img {
             width: 100%;
             height: 150px;
             object-fit: cover;
-            border-radius: 4px;
-            margin-bottom: 10px;
         }
         
         .difficulty {
@@ -215,9 +219,19 @@
             font-weight: bold; /* 굵은 글씨 */
             margin-top: 5px;
         }
+        .contest-introduction {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #FFFFFF;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
         .similar-contest:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .similar-contest-info {
+            padding: 10px; 
         }
         .search-container {
             display: flex;
@@ -242,6 +256,7 @@
             cursor: pointer;
             margin-left: 10px;
         }
+        
     </style>
 </head>
 <body>
@@ -278,6 +293,9 @@
     </div>
 
     <div id="contest-details" class="contest-details" style="display: none;">
+        <div class="contest-info-detailed">
+            <!-- 선택된 공모전 정보가 여기에 표시됩니다 -->
+        </div>
         <div class="contest-image">
             <!-- 선택된 공모전 이미지가 여기에 표시됩니다 -->
         </div>
@@ -475,6 +493,7 @@
         function handleContestClick(contest) {
             const contestDetailsElement = document.getElementById('contest-details');
             const contestImageElement = contestDetailsElement.querySelector('.contest-image');
+            const contestInfoDetailedElement = contestDetailsElement.querySelector('.contest-info-detailed');
             const similarContestsElement = contestDetailsElement.querySelector('.similar-contests');
 
             window.scrollTo({
@@ -483,7 +502,7 @@
             });
             
             contestImageElement.innerHTML = `
-                <img src="${contest.이미지url}" alt="${contest.공모전명}">
+                <img src="${contest.이미지url}" alt="${contest.공모전명}" style="width: 100%; max-height: 300px; object-fit: cover;">
                 <h2>${contest.공모전명}</h2>
                 <p>${contest.기관명}</p>
                 <div class="difficulty-container">
@@ -491,23 +510,35 @@
                     ${getDifficultyIcons(contest.난이도)}
                 </div>
                 <p class="contest-period">${contest.기간}</p>
+                <p class="d-day">${calculateDDay(contest.기간.split('~')[1].trim())}</p>
+                <div class="contest-introduction">
+                    <h3>공모전 소개</h3>
+                    <p>${contest['공모전 소개']}</p>
+                </div>
             `;
 
+            similarContestsElement.innerHTML = ''; // 기존 내용 초기화
             const similarContests = findSimilarContests(contest, contestData, tfidfData);
-
+                .filter(similarContest => similarContest !== contest)
+                .slice(0, 5);
+            
             similarContests.forEach(similarContest => {
                 const similarContestElement = document.createElement('div');
                 similarContestElement.classList.add('similar-contest');
                 similarContestElement.innerHTML = `
                     <img src="${similarContest.이미지url}" alt="${similarContest.공모전명}">
-                    <div class="contest-title">${similarContest.공모전명}</div>
-                    <div class="contest-organizer">${similarContest.기관명}</div>
-                    ${getDifficultyIcons(similarContest.난이도)}
-                    <p class="contest-period">${similarContest.기간}</p>
-                    `;
-                    similarContestElement.addEventListener('click', () => handleContestClick(similarContest));
-                    similarContestsElement.appendChild(similarContestElement);
+                    <div class="similar-contest-info">
+                        <div class="contest-title">${similarContest.공모전명}</div>
+                        <div class="contest-organizer">${similarContest.기관명}</div>
+                        ${getDifficultyIcons(similarContest.난이도)}
+                        <p class="contest-period">${similarContest.기간}</p>
+                        <p class="d-day">${calculateDDay(similarContest.기간.split('~')[1].trim())}</p>
+                    </div>    
+                `;
+                similarContestElement.addEventListener('click', () => handleContestClick(similarContest));
+                similarContestsElement.appendChild(similarContestElement);
             }); 
+            
             contestDetailsElement.style.display = 'flex';
         }
 
