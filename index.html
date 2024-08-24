@@ -173,9 +173,9 @@
         }
         .similar-contests {
             flex: 1;
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 20px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
         }
         .similar-contest {
             border: 2px solid #8B0000;
@@ -184,10 +184,13 @@
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             cursor: pointer;
             background-color: #FFF5E6;
+            height: 150px; /* 고정 높이 */
+            display: flex;
         }
+        
         .similar-contest img {
-            width: 100%;
-            height: 150px;
+            width: 40%;
+            height: 100%;
             object-fit: cover;
         }
         
@@ -238,7 +241,11 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
         .similar-contest-info {
-            padding: 10px; 
+            padding: 10px;
+            width: 60%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
         .search-container {
             display: flex;
@@ -503,6 +510,7 @@
                 top: 0,
                 behavior: 'smooth'
             });
+            
             contestInfoDetailedElement.innerHTML = `
                 <img src="${contest.이미지url}" alt="${contest.공모전명}" class="contest-image">
                 <div class="contest-meta">
