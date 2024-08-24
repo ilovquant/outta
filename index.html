@@ -478,7 +478,7 @@
                 }
             });
         }
-        function calculateDDay(endDate) {
+        function calculateDDay(endDateStr) {
             const endDate = new Date(endDateStr.replace(/년|월/g, '-').replace('일', '').trim());
             const currentDate = new Date();
             currentDate.setHours(0, 0, 0, 0);
