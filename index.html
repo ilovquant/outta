@@ -6,13 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>공모전 추천 사이트</title>
     <style>
-        /* 기존 스타일 유지 */
+        
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             background-color: #FFD580;
         }
+        
         .top-bar {
             display: flex;
             justify-content: space-between;
@@ -21,6 +22,7 @@
             background-color: #FFD580;
             margin-top: 0;
         }
+        
         .header {
             background-color: #f8f8f8;
             padding: 0;
@@ -29,6 +31,7 @@
             justify-content: center;
             margin: 0;
         }
+        
         .logo-container {
             text-align: center;
             margin-bottom: 0; 
@@ -47,6 +50,7 @@
             flex-grow: 1;
             text-align: center;
         }
+        
         .category-buttons {
             display: flex;
             align-items: flex-start;
@@ -57,7 +61,7 @@
         .category-button {
             padding: 10px 20px;
             margin-bottom: 10px;
-            background-color: #4CAF50;
+            background-color: #F9840C;
             color: white;
             border: none;
             border-radius: 5px;
@@ -173,9 +177,8 @@
         }
         
         .difficulty {
-        display: flex;
-        gap: 2px;
-        margin-top: 5px;
+            display: flex;
+            align-items: center;
         }
 
         .difficulty-container {
@@ -195,6 +198,12 @@
         background-repeat: no-repeat;
         background-size: contain;
         }
+        .d-day {
+            color: #F20303;
+            font-size: 17px;
+            font-weight: bold;
+            margin-top: 5px;
+        }    
         .contest-period {
             font-size: 16px; /* 더 큰 글씨 */
             color: #8B0000; /* 어두운 빨간색 */
@@ -240,8 +249,6 @@
         </div>
        
     </header>
-
-    
 
     <div class="top-bar">
         <div class="category-buttons">
@@ -469,6 +476,48 @@
                 }
             });
         }
+        function calculateDDay(endDate) {
+            const today = new Date();
+            const end = new Date(endDate);
+            const timeDiff = end - today;
+            const dayDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+    
+            if (dayDiff < 0) {
+                return "마감";
+            } else if (dayDiff === 0) {
+                return "D-Day";
+            } else {
+                return `D-${dayDiff}`;
+            }
+        }
+
+        function createContestCards() {
+            const contestsContainer = document.getElementById('contests');
+            contestData.forEach((contest, index) => {
+                const contestElement = document.createElement('div');
+                contestElement.classList.add('contest');
+        
+                // 기간의 마지막 날짜 추출
+                const endDate = contest.기간.split('~')[1].trim();
+                const dDay = calculateDDay(endDate);
+        
+                contestElement.innerHTML = `
+                    <img src="${contest.이미지url}" alt="${contest.공모전명}">
+                    <div class="contest-info">
+                        <div class="contest-title">${contest.공모전명}</div>
+                        <div class="contest-organizer">${contest.기관명}</div>
+                        <div class="difficulty-container">
+                            <span class="difficulty-label">난이도:</span>
+                            ${getDifficultyIcons(contest.난이도)}
+                        </div>
+                        <p class="contest-period">${contest.기간}</p>
+                        <p class="d-day">${dDay}</p>
+                    </div>
+                `;
+                contestElement.addEventListener('click', () => handleContestClick(contest));
+                contestsContainer.appendChild(contestElement);
+            });
+        }
         function createContestCards() {
             const contestsContainer = document.getElementById('contests');
             contestData.forEach((contest, index) => {
@@ -484,6 +533,7 @@
                             ${getDifficultyIcons(contest.난이도)}
                         </div>
                         <p class="contest-period">${contest.기간}</p>
+                        <p class="d-day"></p> <!-- D-Day 표시 요소 추가 -->
                     </div>
                 `;
                 contestElement.addEventListener('click', () => handleContestClick(contest));
