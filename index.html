@@ -479,7 +479,7 @@
         };
         
         function createDifficultyTags() {
-            const difficultyLevels = ["매우 쉬움", "쉬움", "보통", "어려움", "매우 어려움"];
+            const difficultyLevels = ["매우쉬움", "쉬움", "보통", "어려움", "매우어려움"];
             const tagsContainer = document.querySelector('#난이도-tags .tags');
             difficultyLevels.forEach(difficulty => {
                 const tagElement = document.createElement('span');
@@ -492,7 +492,7 @@
         
         function toggleDifficultyTag(tagElement) {
             tagElement.classList.toggle('active');
-            const difficultyText = tagElement.textContent.split(' ')[0];
+            const difficultyText = tagElement.textContent.replace(/\s+/g, '');
             if (tagElement.classList.contains('active')) {
                 activeDifficultyTags.add(difficultyText);
             } else {
@@ -546,7 +546,7 @@
                 if (contestInfo) {
                     const contestTechStack = new Set(contestInfo['Tech Stack'].split(' '));
                     const contestIndustry = new Set(contestInfo['Tags'].split(' '));
-                    const contestDifficulty = contestInfo.난이도;
+                    const contestDifficulty = contestInfo.난이도.replace(/\s+/g, '');
                     const dDay = contest.querySelector('.d-day').textContent;
                     
                     console.log(`Contest: ${contestTitle}, Difficulty: ${contestDifficulty}`); // 디버깅 로그
@@ -554,11 +554,11 @@
                     const techStackMatch = activeTechTags.size === 0 || Array.from(activeTechTags).every(tag => contestTechStack.has(tag));
                     const industryMatch = activeIndustryTags.size === 0 || Array.from(activeIndustryTags).every(tag => contestIndustry.has(tag));
                     
-                    // 개선된 난이도 매칭 로직 (정확한 일치만 허용)
+                    // 개선된 난이도 매칭 로직 (공백 제거 후 정확한 일치 검사)
                     const difficultyMatch = activeDifficultyTags.size === 0 || 
                         Array.from(activeDifficultyTags).some(tag => {
-                            // 공백을 유지한 채로 정확한 일치 검사
-                            return tag === contestDifficulty;
+                            const normalizedTag = tag.replace(/\s+/g, '');
+                            return normalizedTag === contestDifficulty;
                         });
                     
                     console.log(`Difficulty match for ${contestTitle}: ${difficultyMatch}, Active tags: ${Array.from(activeDifficultyTags)}, Contest difficulty: ${contestDifficulty}`); // 상세 디버깅 로그
