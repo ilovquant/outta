@@ -813,7 +813,21 @@
                 contest.style.display = isFavorite ? 'block' : 'none';
             });
         }
+        document.querySelector('.favorite-button').addEventListener('click', function() {
+            const favoriteContests = Array.from(document.querySelectorAll('.contest'))
+                .filter(contest => contest.querySelector('.heart-icon.active'));
         
+            const favoriteWindow = window.open("", "_blank");
+            favoriteWindow.document.write('<html><head><title>찜한 공모전</title></head><body>');
+            favoriteWindow.document.write('<div class="contests">');
+        
+            favoriteContests.forEach(contest => {
+                favoriteWindow.document.write(contest.outerHTML);
+            });
+        
+            favoriteWindow.document.write('</div></body></html>');
+            favoriteWindow.document.close();
+        });
         document.getElementById('search-button').addEventListener('click', searchContests);
         document.getElementById('search-input').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
