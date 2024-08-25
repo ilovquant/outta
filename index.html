@@ -555,10 +555,13 @@
                     
                     // 개선된 난이도 매칭 로직
                     const difficultyMatch = activeDifficultyTags.size === 0 || 
-                                            activeDifficultyTags.has(contestDifficulty) ||
-                                            (difficultyMapping[contestDifficulty] && activeDifficultyTags.has(difficultyMapping[contestDifficulty].text));
+                        Array.from(activeDifficultyTags).some(tag => {
+                            const normalizedTag = tag.replace(/\s+/g, '').toLowerCase();
+                            const normalizedDifficulty = contestDifficulty.replace(/\s+/g, '').toLowerCase();
+                            return normalizedTag.includes(normalizedDifficulty) || normalizedDifficulty.includes(normalizedTag);
+                        });
                     
-                    console.log(`Difficulty match for ${contestTitle}: ${difficultyMatch}`); // 추가된 디버깅 로그
+                    console.log(`Difficulty match for ${contestTitle}: ${difficultyMatch}, Active tags: ${Array.from(activeDifficultyTags)}, Contest difficulty: ${contestDifficulty}`); // 상세 디버깅 로그
                     
                     const notExpiredMatch = !showOnlyNotExpired || dDay !== "마감";
                     
