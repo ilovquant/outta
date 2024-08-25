@@ -463,12 +463,13 @@
         }
 
         const difficultyMapping = {
-            '매우 쉬움': '매우 쉬움',
-            '쉬움': '쉬움',
-            '보통': '보통',
-            '어려움': '어려움',
-            '매우 어려움': '매우 어려움'
+            '매우 쉬움': { text: '매우 쉬움', icons: '🔥' },
+            '쉬움': { text: '쉬움', icons: '🔥🔥' },
+            '보통': { text: '보통', icons: '🔥🔥🔥' },
+            '어려움': { text: '어려움', icons: '🔥🔥🔥🔥' },
+            '매우 어려움': { text: '매우 어려움', icons: '🔥🔥🔥🔥🔥' }
         };
+        
         const difficultyLevels = {
             '매우 쉬움': 1,
             '쉬움': 2,
@@ -479,26 +480,23 @@
         
         function createDifficultyTags() {
             const tagsContainer = document.querySelector('#난이도-tags .tags');
-            Object.keys(difficultyMapping).forEach(difficulty => {
+            Object.entries(difficultyMapping).forEach(([key, value]) => {
                 const tagElement = document.createElement('span');
                 tagElement.classList.add('difficulty-tag');
-                tagElement.textContent = `${difficulty} ${getDifficultyIcons(difficulty)}`;
+                tagElement.textContent = `${value.text} ${value.icons}`;
                 tagElement.addEventListener('click', () => toggleDifficultyTag(tagElement));
                 tagsContainer.appendChild(tagElement);
             });
         }
+        
         function toggleDifficultyTag(tagElement) {
-            const difficultyText = tagElement.textContent.split(' ')[0];
-            console.log('Toggling difficulty tag:', difficultyText); // 디버깅 로그
-        
-            if (tagElement.classList.contains('active')) {
-                activeDifficultyTags.delete(difficultyText);
-            } else {
-                activeDifficultyTags.add(difficultyText);
-            }
-        
             tagElement.classList.toggle('active');
-            console.log('Active difficulty tags after toggle:', Array.from(activeDifficultyTags));
+            const difficultyText = tagElement.textContent.split(' ')[0];
+            if (tagElement.classList.contains('active')) {
+                activeDifficultyTags.add(difficultyText);
+            } else {
+                activeDifficultyTags.delete(difficultyText);
+            }
             filterContests();
         }
         function createTags(category) {
@@ -554,9 +552,14 @@
                     
                     const techStackMatch = activeTechTags.size === 0 || Array.from(activeTechTags).every(tag => contestTechStack.has(tag));
                     const industryMatch = activeIndustryTags.size === 0 || Array.from(activeIndustryTags).every(tag => contestIndustry.has(tag));
+                    
+                    // 개선된 난이도 매칭 로직
                     const difficultyMatch = activeDifficultyTags.size === 0 || 
                                             activeDifficultyTags.has(contestDifficulty) ||
-                                            activeDifficultyTags.has(difficultyMapping[contestDifficulty]);
+                                            (difficultyMapping[contestDifficulty] && activeDifficultyTags.has(difficultyMapping[contestDifficulty].text));
+                    
+                    console.log(`Difficulty match for ${contestTitle}: ${difficultyMatch}`); // 추가된 디버깅 로그
+                    
                     const notExpiredMatch = !showOnlyNotExpired || dDay !== "마감";
                     
                     const shouldShow = techStackMatch && industryMatch && difficultyMatch && notExpiredMatch;
@@ -567,6 +570,9 @@
                         contestIndustry.forEach(tag => availableIndustryTags.add(tag));
                         availableDifficultyTags.add(contestDifficulty);
                     }
+        
+                    // 난이도 매칭 상세 로그
+                    console.log(`Contest ${contestTitle} - Tech Stack Match: ${techStackMatch}, Industry Match: ${industryMatch}, Difficulty Match: ${difficultyMatch}, Not Expired Match: ${notExpiredMatch}`);
                 } else {
                     console.error('Contest not found:', contestTitle);
                     contest.style.display = 'none';
@@ -576,6 +582,10 @@
             console.log('Available difficulty tags:', Array.from(availableDifficultyTags)); // 디버깅 로그
         
             updateTagsStatus(availableTechTags, availableIndustryTags, availableDifficultyTags);
+        
+            // 필터링 결과 요약
+            const visibleContests = document.querySelectorAll('.contest[style="display: block;"]');
+            console.log(`Visible contests after filtering: ${visibleContests.length}`);
         }
 
         function updateTagsStatus(availableTechTags, availableIndustryTags, availableDifficultyTags) {
@@ -871,4 +881,7 @@
 
     // DOM이 로드된 후 앱 초기화
     document.addEventListener('DOMContentLoaded', initializeApp);
-</script>
+    </script>
+</body>
+</html>
+
