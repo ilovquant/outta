@@ -556,9 +556,28 @@
                     // 개선된 난이도 매칭 로직
                     const difficultyMatch = activeDifficultyTags.size === 0 || 
                         Array.from(activeDifficultyTags).some(tag => {
-                            const normalizedTag = tag.replace(/\s+/g, '').toLowerCase();
-                            const normalizedDifficulty = contestDifficulty.replace(/\s+/g, '').toLowerCase();
-                            return normalizedTag.includes(normalizedDifficulty) || normalizedDifficulty.includes(normalizedTag);
+                            const normalizedTag = tag.trim().toLowerCase();
+                            const normalizedDifficulty = contestDifficulty.trim().toLowerCase();
+                            
+                            // 정확한 일치 검사
+                            if (normalizedTag === normalizedDifficulty) {
+                                return true;
+                            }
+                            
+                            // "매우 쉬움"과 "매우 어려움"에 대한 특별 처리
+                            if (normalizedTag === "매우 쉬움" && normalizedDifficulty === "매우 쉬움") {
+                                return true;
+                            }
+                            if (normalizedTag === "매우 어려움" && normalizedDifficulty === "매우 어려움") {
+                                return true;
+                            }
+                            
+                            // 나머지 난이도에 대한 부분 일치 허용
+                            if (["쉬움", "보통", "어려움"].includes(normalizedTag) && normalizedDifficulty.includes(normalizedTag)) {
+                                return true;
+                            }
+                            
+                            return false;
                         });
                     
                     console.log(`Difficulty match for ${contestTitle}: ${difficultyMatch}, Active tags: ${Array.from(activeDifficultyTags)}, Contest difficulty: ${contestDifficulty}`); // 상세 디버깅 로그
