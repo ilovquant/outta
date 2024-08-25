@@ -478,19 +478,26 @@
         };
         
         function createDifficultyTags() {
+            const difficultyTags = [
+                { text: '매우 쉬움', icons: '🔥' },
+                { text: '쉬움', icons: '🔥🔥' },
+                { text: '보통', icons: '🔥🔥🔥' },
+                { text: '어려움', icons: '🔥🔥🔥🔥' },
+                { text: '매우 어려움', icons: '🔥🔥🔥🔥🔥' }
+            ];
+            
             const tagsContainer = document.querySelector('#난이도-tags .tags');
-            Object.keys(difficultyLevels).forEach(difficulty => {
+            difficultyTags.forEach(tag => {
                 const tagElement = document.createElement('span');
                 tagElement.classList.add('difficulty-tag');
-                tagElement.textContent = `${difficulty} ${getDifficultyIcons(difficulty)}`;
+                tagElement.textContent = `${tag.text} ${tag.icons}`;
                 tagElement.addEventListener('click', () => toggleDifficultyTag(tagElement));
                 tagsContainer.appendChild(tagElement);
             });
         }
-
         function toggleDifficultyTag(tagElement) {
             tagElement.classList.toggle('active');
-            const difficultyText = tagElement.textContent.split(' ')[0]; // '🔥' 제거
+            const difficultyText = tagElement.textContent.split(' ')[0]; // 난이도 텍스트만 추출
             if (tagElement.classList.contains('active')) {
                 activeDifficultyTags.add(difficultyText);
             } else {
