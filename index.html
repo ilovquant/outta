@@ -6,8 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>공모전 추천 사이트</title>
     <style>
+
+        @font-face {
+            font-family: 'PTNoeulB';
+            src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/2408@1.0/PTNoeulB.woff2') format('woff2');
+            font-weight: 700;
+            font-style: normal;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'PTNoeulB', Arial, sans-serif;
             margin: 0;
             padding: 0;
             background-color: #FFD580;
@@ -263,12 +271,14 @@
         }
 
         .contest-introduction pre {
-            font-family: 'Comic Sans MS', cursive, sans-serif;
-            font-weight: bold;
+            font-family: 'PTNoeulB', Arial, sans-serif;
+            font-weight: 700;
             font-size: 16px;
             color: #333;
             line-height: 1.5;
             margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
         }
         .similar-contest:hover {
             transform: translateY(-5px);
@@ -584,7 +594,7 @@
                 </div>
                 <div class="contest-introduction">
                    
-                    <pre style="white-space: pre-wrap; word-wrap: break-word; font-family: 'Comic Sans MS', cursive, sans-serif; font-weight: bold;">${contest['공모전 소개']}</pre>
+                    <pre>${contest['공모전 소개']}</pre>
                 </div>
             `;
 
