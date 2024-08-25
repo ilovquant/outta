@@ -136,7 +136,7 @@
             position: absolute;
             bottom: 10px;
             right: 10px;
-            font-size: 20px;
+            font-size: 30px;
             cursor: pointer;
         }
 
@@ -659,9 +659,25 @@
         
         function createContestCards() {
             const contestsContainer = document.getElementById('contests');
+            contestsContainer.innerHTML = ''; 
+
+            // 중복 제거를 위한 Set 사용 
+            const renderedContests = new Set(); 
+            
             contestData.forEach((contest) => {
+
+                // 공모전명을 고유 식별자로 사용
+                const contestId = contest.공모전명;
+                
+                // 이미 렌더링된 공모전이면 건너뛰기
+                if (renderedContests.has(contestId)) {
+                    return;
+                }
+            
                 const contestElement = document.createElement('div');
                 contestElement.classList.add('contest');
+                contestElement.dataset.contestId = contestId; // 데이터 속성으로 ID 저장
+
         
                 // 기간의 마지막 날짜 추출
                 const endDate = contest.기간.split('~')[1].trim();
@@ -691,6 +707,9 @@
                 
                 contestElement.addEventListener('click', () => handleContestClick(contest));
                 contestsContainer.appendChild(contestElement);
+
+                // 렌더링된공모전 추적  
+                renderedContests.add(contestId);
       
             });
         }
