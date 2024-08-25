@@ -554,7 +554,7 @@
                     
                     const techStackMatch = activeTechTags.size === 0 || Array.from(activeTechTags).every(tag => contestTechStack.has(tag));
                     const industryMatch = activeIndustryTags.size === 0 || Array.from(activeIndustryTags).every(tag => contestIndustry.has(tag));
-                    const difficultyMatch = activeDifficultyTags.size === 0 || activeDifficultyTags.has(difficultyMapping[contestDifficulty] || contestDifficulty);
+                    const difficultyMatch = activeDifficultyTags.size === 0 || activeDifficultyTags.has(contestDifficulty);
                     const notExpiredMatch = !showOnlyNotExpired || dDay !== "마감";
                     
                     const shouldShow = techStackMatch && industryMatch && difficultyMatch && notExpiredMatch;
@@ -563,7 +563,7 @@
                     if (shouldShow) {
                         contestTechStack.forEach(tag => availableTechTags.add(tag));
                         contestIndustry.forEach(tag => availableIndustryTags.add(tag));
-                        availableDifficultyTags.add(difficultyMapping[contestDifficulty] || contestDifficulty);
+                        availableDifficultyTags.add(contestDifficulty);
                     }
                 } else {
                     console.error('Contest not found:', contestTitle);
@@ -821,6 +821,15 @@
             }
         });
 
+        function initializeDifficultyTags() {
+            const difficultyTags = document.querySelectorAll('#난이도-tags .difficulty-tag');
+            difficultyTags.forEach(tag => {
+                tag.classList.remove('disabled');
+                tag.style.backgroundColor = '';
+                activeDifficultyTags.add(tag.textContent.split(' ')[0]);
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             initializeApp();
             
@@ -841,18 +850,19 @@
             }
         });
         function initializeApp() {
-        if (typeof contestData === 'undefined') {
-            document.getElementById('error-message').style.display = 'block';
-            document.getElementById('error-message').textContent = 'Contest data could not be loaded. Please check your internet connection and refresh the page.';
-            return;
-        }
-
-        createCategoryButtons();
-        createContestCards();
-        
+            if (typeof contestData === 'undefined') {
+                document.getElementById('error-message').style.display = 'block';
+                document.getElementById('error-message').textContent = 'Contest data could not be loaded. Please check your internet connection and refresh the page.';
+                return;
+            }
+    
+            createCategoryButtons();
+            createContestCards();
+            initializeDifficultyTags(); // 새로 추가된 함수 호출
+            filterContests(); // 초기 필터링 적용
         // TF-IDF 계산
-        const documents = contestData.map(contest => `${contest.공모전명} ${contest.기관명} ${contest['Tech Stack']} ${contest['Tags']}`);
-        tfidfData = calculateTFIDF(documents);
+            const documents = contestData.map(contest => `${contest.공모전명} ${contest.기관명} ${contest['Tech Stack']} ${contest['Tags']}`);
+            tfidfData = calculateTFIDF(documents);
         }
 
     // DOM이 로드된 후 앱 초기화
