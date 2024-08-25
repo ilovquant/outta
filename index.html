@@ -462,14 +462,27 @@
             showOnlyNotExpired = button.classList.contains('active');
         }
 
-
+        const difficultyMapping = {
+            '매우 쉬움': '매우 쉬움',
+            '쉬움': '쉬움',
+            '보통': '보통',
+            '어려움': '어려움',
+            '매우 어려움': '매우 어려움'
+        };
+        const difficultyLevels = {
+            '매우 쉬움': 1,
+            '쉬움': 2,
+            '보통': 3,
+            '어려움': 4,
+            '매우 어려움': 5
+        };
+        
         function createDifficultyTags() {
-            const difficultyTags = ['매우 쉬움 🔥', '쉬움 🔥🔥', '보통 🔥🔥🔥', '어려움 🔥🔥🔥🔥', '매우 어려움 🔥🔥🔥🔥🔥'];
             const tagsContainer = document.querySelector('#난이도-tags .tags');
-            difficultyTags.forEach(tag => {
+            Object.keys(difficultyLevels).forEach(difficulty => {
                 const tagElement = document.createElement('span');
                 tagElement.classList.add('difficulty-tag');
-                tagElement.textContent = tag;
+                tagElement.textContent = `${difficulty} ${getDifficultyIcons(difficulty)}`;
                 tagElement.addEventListener('click', () => toggleDifficultyTag(tagElement));
                 tagsContainer.appendChild(tagElement);
             });
@@ -477,7 +490,7 @@
 
         function toggleDifficultyTag(tagElement) {
             tagElement.classList.toggle('active');
-            const difficultyText = tagElement.textContent.split(' ')[0] + ' ' + tagElement.textContent.split(' ')[1];
+            const difficultyText = tagElement.textContent.split(' ')[0]; // '🔥' 제거
             if (tagElement.classList.contains('active')) {
                 activeDifficultyTags.add(difficultyText);
             } else {
@@ -530,7 +543,7 @@
                     
                     const techStackMatch = activeTechTags.size === 0 || Array.from(activeTechTags).every(tag => contestTechStack.has(tag));
                     const industryMatch = activeIndustryTags.size === 0 || Array.from(activeIndustryTags).every(tag => contestIndustry.has(tag));
-                    const difficultyMatch = activeDifficultyTags.size === 0 || activeDifficultyTags.has(contestDifficulty);
+                    const difficultyMatch = activeDifficultyTags.size === 0 || activeDifficultyTags.has(difficultyMapping[contestDifficulty]);
                     const notExpiredMatch = !showOnlyNotExpired || dDay !== "마감";
                     
                     const shouldShow = techStackMatch && industryMatch && difficultyMatch && notExpiredMatch;
@@ -541,7 +554,7 @@
                 }
             });
 
-            updateTagsStatus(availableTechTags, availableIndustryTags);
+           // updateTagsStatus(availableTechTags, availableIndustryTags);
         }
 
         function updateTagsStatus(availableTechTags, availableIndustryTags) {
@@ -615,13 +628,6 @@
         }
 
         function getDifficultyIcons(difficulty) {
-            const difficultyLevels = {
-                '매우 쉬움': 1,
-                '쉬움': 2,
-                '보통': 3,
-                '어려움': 4,
-                '매우 어려움': 5
-            };
             const iconCount = difficultyLevels[difficulty] || 0;
             return '<div class="difficulty">' + '🔥'.repeat(iconCount) + '</div>';
         }
