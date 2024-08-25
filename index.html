@@ -478,31 +478,27 @@
         };
         
         function createDifficultyTags() {
-            const difficultyTags = [
-                { text: '매우 쉬움', icons: '🔥' },
-                { text: '쉬움', icons: '🔥🔥' },
-                { text: '보통', icons: '🔥🔥🔥' },
-                { text: '어려움', icons: '🔥🔥🔥🔥' },
-                { text: '매우 어려움', icons: '🔥🔥🔥🔥🔥' }
-            ];
-            
             const tagsContainer = document.querySelector('#난이도-tags .tags');
-            difficultyTags.forEach(tag => {
+            Object.keys(difficultyMapping).forEach(difficulty => {
                 const tagElement = document.createElement('span');
                 tagElement.classList.add('difficulty-tag');
-                tagElement.textContent = `${tag.text} ${tag.icons}`;
+                tagElement.textContent = `${difficulty} ${getDifficultyIcons(difficulty)}`;
                 tagElement.addEventListener('click', () => toggleDifficultyTag(tagElement));
                 tagsContainer.appendChild(tagElement);
             });
         }
         function toggleDifficultyTag(tagElement) {
-            tagElement.classList.toggle('active');
-            const difficultyText = tagElement.textContent.split(' ')[0]; // 난이도 텍스트만 추출
+            const difficultyText = tagElement.textContent.split(' ')[0];
+            console.log('Toggling difficulty tag:', difficultyText); // 디버깅 로그
+        
             if (tagElement.classList.contains('active')) {
-                activeDifficultyTags.add(difficultyText);
-            } else {
                 activeDifficultyTags.delete(difficultyText);
+            } else {
+                activeDifficultyTags.add(difficultyText);
             }
+        
+            tagElement.classList.toggle('active');
+            console.log('Active difficulty tags after toggle:', Array.from(activeDifficultyTags));
             filterContests();
         }
         function createTags(category) {
@@ -543,6 +539,8 @@
             let availableIndustryTags = new Set();
             let availableDifficultyTags = new Set();
             
+            console.log('Active difficulty tags:', Array.from(activeDifficultyTags)); // 디버깅 로그
+            
             contests.forEach(contest => {
                 const contestTitle = contest.querySelector('.contest-title').textContent;
                 const contestInfo = contestData.find(data => data.공모전명 === contestTitle);
@@ -552,9 +550,13 @@
                     const contestDifficulty = contestInfo.난이도;
                     const dDay = contest.querySelector('.d-day').textContent;
                     
+                    console.log(`Contest: ${contestTitle}, Difficulty: ${contestDifficulty}`); // 디버깅 로그
+                    
                     const techStackMatch = activeTechTags.size === 0 || Array.from(activeTechTags).every(tag => contestTechStack.has(tag));
                     const industryMatch = activeIndustryTags.size === 0 || Array.from(activeIndustryTags).every(tag => contestIndustry.has(tag));
-                    const difficultyMatch = activeDifficultyTags.size === 0 || activeDifficultyTags.has(contestDifficulty);
+                    const difficultyMatch = activeDifficultyTags.size === 0 || 
+                                            activeDifficultyTags.has(contestDifficulty) ||
+                                            activeDifficultyTags.has(difficultyMapping[contestDifficulty]);
                     const notExpiredMatch = !showOnlyNotExpired || dDay !== "마감";
                     
                     const shouldShow = techStackMatch && industryMatch && difficultyMatch && notExpiredMatch;
@@ -570,6 +572,8 @@
                     contest.style.display = 'none';
                 }
             });
+        
+            console.log('Available difficulty tags:', Array.from(availableDifficultyTags)); // 디버깅 로그
         
             updateTagsStatus(availableTechTags, availableIndustryTags, availableDifficultyTags);
         }
@@ -647,8 +651,9 @@
         }
 
         function getDifficultyIcons(difficulty) {
+            function getDifficultyIcons(difficulty) {
             const iconCount = difficultyLevels[difficulty] || 0;
-            return '<div class="difficulty">' + '🔥'.repeat(iconCount) + '</div>';
+            return '🔥'.repeat(iconCount);
         }
 
         function handleContestClick(contest) {
