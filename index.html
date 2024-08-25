@@ -468,6 +468,12 @@
             '보통': '보통',
             '어려움': '어려움',
             '매우 어려움': '매우 어려움'
+
+            '1': '매우 쉬움',
+            '2': '쉬움',
+            '3': '보통',
+            '4': '어려움',
+            '5': '매우 어려움'
         };
         const difficultyLevels = {
             '매우 쉬움': 1,
@@ -539,6 +545,10 @@
         
         function filterContests() {
             const contests = document.querySelectorAll('.contest');
+            let availableTechTags = new Set();
+            let availableIndustryTags = new Set();
+            let availableDifficultyTags = new Set();
+            
             contests.forEach(contest => {
                 const contestTitle = contest.querySelector('.contest-title').textContent;
                 const contestInfo = contestData.find(data => data.공모전명 === contestTitle);
@@ -550,29 +560,37 @@
                     
                     const techStackMatch = activeTechTags.size === 0 || Array.from(activeTechTags).every(tag => contestTechStack.has(tag));
                     const industryMatch = activeIndustryTags.size === 0 || Array.from(activeIndustryTags).every(tag => contestIndustry.has(tag));
-                    const difficultyMatch = activeDifficultyTags.size === 0 || activeDifficultyTags.has(difficultyMapping[contestDifficulty]);
+                    const difficultyMatch = activeDifficultyTags.size === 0 || activeDifficultyTags.has(difficultyMapping[contestDifficulty] || contestDifficulty);
                     const notExpiredMatch = !showOnlyNotExpired || dDay !== "마감";
                     
                     const shouldShow = techStackMatch && industryMatch && difficultyMatch && notExpiredMatch;
                     contest.style.display = shouldShow ? 'block' : 'none';
+        
+                    if (shouldShow) {
+                        contestTechStack.forEach(tag => availableTechTags.add(tag));
+                        contestIndustry.forEach(tag => availableIndustryTags.add(tag));
+                        availableDifficultyTags.add(difficultyMapping[contestDifficulty] || contestDifficulty);
+                    }
                 } else {
                     console.error('Contest not found:', contestTitle);
                     contest.style.display = 'none';
                 }
             });
-
-           // updateTagsStatus(availableTechTags, availableIndustryTags);
+        
+            updateTagsStatus(availableTechTags, availableIndustryTags, availableDifficultyTags);
         }
 
-        function updateTagsStatus(availableTechTags, availableIndustryTags) {
+        function updateTagsStatus(availableTechTags, availableIndustryTags, availableDifficultyTags) {
             updateCategoryTagsStatus('기술스택', availableTechTags);
             updateCategoryTagsStatus('산업분야', availableIndustryTags);
+            updateCategoryTagsStatus('난이도', availableDifficultyTags);
         }
 
         function updateCategoryTagsStatus(category, availableTags) {
-            const tags = document.querySelectorAll(`#${category}-tags .tag`);
+            const tags = document.querySelectorAll(`#${category}-tags .tag, #${category}-tags .difficulty-tag`);
             tags.forEach(tag => {
-                if (availableTags.has(tag.textContent)) {
+                const tagText = category === '난이도' ? tag.textContent.split(' ')[0] : tag.textContent;
+                if (availableTags.has(tagText)) {
                     tag.classList.remove('disabled');
                     tag.style.backgroundColor = '';
                 } else {
