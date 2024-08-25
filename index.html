@@ -329,6 +329,20 @@
             cursor: pointer;
             margin-left: 10px;
         }
+        .difficulty-tag {
+            background-color: #F9840C;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            color: white;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            display: inline-block;
+        }
+        .difficulty-tag.active {
+            background-color: #4CAF50;
+        }
         
     </style>
 </head>
@@ -349,6 +363,9 @@
         <div class="category-buttons">
             <button class="category-button" data-category="기술스택" aria-label="기술스택 카테고리">기술스택</button>
             <button class="category-button" data-category="산업분야" aria-label="산업분야 카테고리">산업분야</button>
+            <button class="category-button" data-category="난이도" aria-label="난이도 카테고리">난이도</button>
+            <button class="category-button" id="not-expired-button" aria-label="마감되지 않은 공모전">마감X</button>
+    
         </div>
         <div class="search-container">
             <input type="text" id="search-input" placeholder="공모전 검색...">
@@ -361,6 +378,9 @@
             <div class="tags"></div>
         </div>
         <div id="산업분야-tags" class="tags-container" style="display:none;">
+            <div class="tags"></div>
+        </div>
+        <div id="난이도-tags" class="tags-container" style="display:none;">
             <div class="tags"></div>
         </div>
     </div>
@@ -397,32 +417,72 @@
         };
 
         let tfidfData;
+        let activeDifficultyTags = new Set();
+        let showOnlyNotExpired = false;
 
         function createCategoryButtons() {
             const categoryButtons = document.querySelectorAll('.category-button');
             categoryButtons.forEach(button => {
                 button.addEventListener('click', () => {
                     const category = button.dataset.category;
-                    const tagsContainer = document.getElementById(`${category}-tags`);
+                    if (category === "난이도") {
+                        handleDifficultyButton(button);
+                    } else if (button.id === "not-expired-button") {
+                        handleNotExpiredButton(button);
+                    } else {
                     
-                    // 모든 버튼의 active 클래스를 제거
-                    categoryButtons.forEach(btn => btn.classList.remove('active'));
-                    // 모든 태그 컨테이너를 숨김
-                    document.querySelectorAll('.tags-container').forEach(container => container.style.display = 'none');
-                    
-                    // 클릭된 버튼에 active 클래스 추가
-                    button.classList.add('active');
-                    // 해당하는 태그 컨테이너를 표시
-                    tagsContainer.style.display = 'block';
-                    
-                    if (tagsContainer.querySelector('.tags').children.length === 0) {
-                        createTags(category);
+                        const tagsContainer = document.getElementById(`${category}-tags`);
+                        
+                        button.classList.toggle('active');
+                        tagsContainer.style.display = button.classList.contains('active') ? 'block' : 'none';
+                        if (tagsContainer.style.display === 'block' && tagsContainer.querySelector('.tags').children.length === 0) {
+                            createTags(category);
+                        }
                     }
                     filterContests();
                 });
             });
         }
 
+        
+        function handleDifficultyButton(button) {
+            const difficultyTagsContainer = document.getElementById('난이도-tags');
+            button.classList.toggle('active');
+            difficultyTagsContainer.style.display = button.classList.contains('active') ? 'block' : 'none';
+            if (difficultyTagsContainer.querySelector('.tags').children.length === 0) {
+                createDifficultyTags();
+            }
+        }
+ 
+        function handleNotExpiredButton(button) {
+            button.classList.toggle('active');
+            showOnlyNotExpired = button.classList.contains('active');
+            filterContests();
+        }
+
+
+        function createDifficultyTags() {
+            const difficultyTags = ['매우 쉬움 🔥', '쉬움 🔥🔥', '보통 🔥🔥🔥', '어려움 🔥🔥🔥🔥', '매우 어려움 🔥🔥🔥🔥🔥'];
+            const tagsContainer = document.querySelector('#난이도-tags .tags');
+            difficultyTags.forEach(tag => {
+                const tagElement = document.createElement('span');
+                tagElement.classList.add('difficulty-tag');
+                tagElement.textContent = tag;
+                tagElement.addEventListener('click', () => toggleDifficultyTag(tagElement));
+                tagsContainer.appendChild(tagElement);
+            });
+        }
+
+        function toggleDifficultyTag(tagElement) {
+            tagElement.classList.toggle('active');
+            const difficultyText = tagElement.textContent.split(' ')[0] + ' ' + tagElement.textContent.split(' ')[1];
+            if (tagElement.classList.contains('active')) {
+                activeDifficultyTags.add(difficultyText);
+            } else {
+                activeDifficultyTags.delete(difficultyText);
+            }
+            filterContests();
+        }
         function createTags(category) {
             const tagsContainer = document.querySelector(`#${category}-tags .tags`);
             categories[category].forEach(tag => {
@@ -456,29 +516,23 @@
         
         
         function filterContests() {
-            
             const contests = document.querySelectorAll('.contest');
-            let availableTechTags = new Set();
-            let availableIndustryTags = new Set();
-            
             contests.forEach(contest => {
                 const contestTitle = contest.querySelector('.contest-title').textContent;
                 const contestInfo = contestData.find(data => data.공모전명 === contestTitle);
                 if (contestInfo) {
                     const contestTechStack = new Set(contestInfo['Tech Stack'].split(' '));
                     const contestIndustry = new Set(contestInfo['Tags'].split(' '));
+                    const contestDifficulty = contestInfo.난이도;
+                    const dDay = contest.querySelector('.d-day').textContent;
                     
                     const techStackMatch = activeTechTags.size === 0 || Array.from(activeTechTags).every(tag => contestTechStack.has(tag));
                     const industryMatch = activeIndustryTags.size === 0 || Array.from(activeIndustryTags).every(tag => contestIndustry.has(tag));
+                    const difficultyMatch = activeDifficultyTags.size === 0 || activeDifficultyTags.has(contestDifficulty);
+                    const notExpiredMatch = !showOnlyNotExpired || dDay !== "마감";
                     
-                    const shouldShow = techStackMatch && industryMatch;
+                    const shouldShow = techStackMatch && industryMatch && difficultyMatch && notExpiredMatch;
                     contest.style.display = shouldShow ? 'block' : 'none';
-
-                    if (shouldShow) {
-                        contestTechStack.forEach(tag => availableTechTags.add(tag));
-                        contestIndustry.forEach(tag => availableIndustryTags.add(tag));
-                    }
-                    
                 } else {
                     console.error('Contest not found:', contestTitle);
                     contest.style.display = 'none';
