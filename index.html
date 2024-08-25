@@ -255,11 +255,7 @@
             margin-top: 5px;
         }
         .contest-introduction {
-            font-family: 'Comic Sans MS', cursive, sans-serif;
-            font-weight: bold;
-            font-size: 16px;
-            color: #333;
-            line-height: 1.5;
+            margin-top: 20px;
             padding: 15px;
             background-color: #FFF5E6;
             border-radius: 10px;
@@ -267,10 +263,12 @@
         }
 
         .contest-introduction pre {
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            max-width: 100%;
-            overflow-x: hidden;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            font-weight: bold;
+            font-size: 16px;
+            color: #333;
+            line-height: 1.5;
+            margin: 0;
         }
         .similar-contest:hover {
             transform: translateY(-5px);
@@ -586,7 +584,7 @@
                 </div>
                 <div class="contest-introduction">
                    
-                    <pre style="white-space: pre-wrap; word-wrap: break-word; font-family: inherit; font-weight: inherit;">
+                    <pre style="white-space: pre-wrap; word-wrap: break-word; font-family: 'Comic Sans MS', cursive, sans-serif; font-weight: bold;">${contest['공모전 소개']}</pre>
                 </div>
             `;
 
