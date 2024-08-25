@@ -364,7 +364,7 @@
             <button class="category-button" data-category="기술스택" aria-label="기술스택 카테고리">기술스택</button>
             <button class="category-button" data-category="산업분야" aria-label="산업분야 카테고리">산업분야</button>
             <button class="category-button" data-category="난이도" aria-label="난이도 카테고리">난이도</button>
-            <button class="category-button" id="not-expired-button" aria-label="마감되지 않은 공모전">마감X</button>
+            <button class="category-button" id="not-expired-button" data-category="마감X" aria-label="마감되지 않은 공모전">마감X</button>
     
         </div>
         <div class="search-container">
@@ -423,31 +423,35 @@
         function createCategoryButtons() {
             const categoryButtons = document.querySelectorAll('.category-button');
             categoryButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    const category = button.dataset.category;
-                    if (category === "난이도") {
-                        handleDifficultyButton(button);
-                    } else if (button.id === "not-expired-button") {
-                        handleNotExpiredButton(button);
-                    } else {
-                    
-                        const tagsContainer = document.getElementById(`${category}-tags`);
-                        
-                        button.classList.toggle('active');
-                        tagsContainer.style.display = button.classList.contains('active') ? 'block' : 'none';
-                        if (tagsContainer.style.display === 'block' && tagsContainer.querySelector('.tags').children.length === 0) {
-                            createTags(category);
-                        }
-                    }
-                    filterContests();
-                });
+                // 기존 이벤트 리스너 제거 (중복 방지)
+                button.removeEventListener('click', handleCategoryButtonClick);
+                button.addEventListener('click', handleCategoryButtonClick);
             });
         }
 
+        function handleCategoryButtonClick(event) {
+            const button = event.currentTarget;
+            const category = button.dataset.category;
+            
+            button.classList.toggle('active');
+            
+            if (category === "난이도") {
+                handleDifficultyButton(button);
+            } else if (category === "마감X") {
+                handleNotExpiredButton(button);
+            } else {
+                const tagsContainer = document.getElementById(`${category}-tags`);
+                tagsContainer.style.display = button.classList.contains('active') ? 'block' : 'none';
+                if (tagsContainer.style.display === 'block' && tagsContainer.querySelector('.tags').children.length === 0) {
+                    createTags(category);
+                }
+            }
+            
+            filterContests();
+        }
         
         function handleDifficultyButton(button) {
             const difficultyTagsContainer = document.getElementById('난이도-tags');
-            button.classList.toggle('active');
             difficultyTagsContainer.style.display = button.classList.contains('active') ? 'block' : 'none';
             if (difficultyTagsContainer.querySelector('.tags').children.length === 0) {
                 createDifficultyTags();
@@ -455,9 +459,7 @@
         }
  
         function handleNotExpiredButton(button) {
-            button.classList.toggle('active');
             showOnlyNotExpired = button.classList.contains('active');
-            filterContests();
         }
 
 
