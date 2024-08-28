@@ -618,15 +618,16 @@
         }
 
         function updateCategoryTagsStatus(category, availableTags) {
-            const tags = document.querySelectorAll(`#${category}-tags .tag, #${category}-tags .difficulty-tag`);
-            tags.forEach(tag => {
-                const tagText = category === '난이도' ? tag.textContent.split(' ')[0] : tag.textContent;
+            const tagsContainer = document.querySelector(`#${category}-tags .tags`);
+            const tags = tagsContainer.querySelectorAll('.tag');
+        
+            tags.forEach(tagElement => {
+                const tagText = tagElement.textContent;
+        
                 if (availableTags.has(tagText)) {
-                    tag.classList.remove('disabled');
-                    tag.style.backgroundColor = '';
+                    tagElement.classList.remove('disabled'); // 비활성화 클래스 제거
                 } else {
-                    tag.classList.add('disabled');
-                    tag.style.backgroundColor = 'gray';
+                    tagElement.classList.add('disabled'); // 비활성화 클래스 추가
                 }
             });
         }
