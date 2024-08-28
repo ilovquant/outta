@@ -561,7 +561,11 @@
                 const contestData = contestDataMap.get(contestTitle);
         
                 if (contestData) {
-                    const contestTechStack = contestData['Tech Stack'] ? contestData['Tech Stack'].split(',').map(tag => tag.trim()) : [];
+                    // 'Tech Stack' 필드가 문자열이 아닌 배열일 경우를 대비
+                    const contestTechStack = Array.isArray(contestData['Tech Stack']) 
+                        ? contestData['Tech Stack'] 
+                        : (contestData['Tech Stack'] ? contestData['Tech Stack'].split(',').map(tag => tag.trim()) : []);
+                    
                     const contestIndustry = contestData['Tags'] ? contestData['Tags'].split(',').map(tag => tag.trim()) : [];
                     const contestDifficulty = contestData['난이도'];
                     const contestMBTI = contestData['MBTI'] ? contestData['MBTI'].split(',').map(tag => tag.trim()) : [];
@@ -600,12 +604,9 @@
         }
 
         function updateCategoryTagsStatus(category, availableTags) {
-            // availableTags가 undefined이거나 Set이 아닌 경우 빈 Set으로 초기화
-            availableTags = availableTags instanceof Set ? availableTags : new Set();
-            
             const tags = document.querySelectorAll(`#${category}-tags .tag, #${category}-tags .difficulty-tag`);
             tags.forEach(tag => {
-                const tagText = category === '난이도' ? tag.textContent.split(' ')[0] : tag.textContent;
+                const tagText = category === '난이도' ? tag.textContent.split(' ')[0] : tag.textContent.trim();
                 if (availableTags.has(tagText)) {
                     tag.classList.remove('disabled');
                     tag.style.backgroundColor = '';
@@ -843,6 +844,15 @@
             }
         });
 
+        function initializeTechTags() {
+            const techTags = document.querySelectorAll('#기술스택-tags .tag');
+            techTags.forEach(tag => {
+                tag.classList.remove('disabled');
+                tag.style.backgroundColor = '';
+                activeTechTags.add(tag.textContent.trim());
+            });
+        }
+        
         function initializeDifficultyTags() {
             const difficultyTags = document.querySelectorAll('#난이도-tags .difficulty-tag');
             difficultyTags.forEach(tag => {
@@ -884,6 +894,7 @@
         
             createCategoryButtons();
             createContestCards();
+            initializeTechTags();
             initializeDifficultyTags();
             filterContests();
             
