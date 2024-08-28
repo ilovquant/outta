@@ -383,9 +383,6 @@
         <div id="난이도-tags" class="tags-container" style="display:none;">
             <div class="tags"></div>
         </div>
-        <div id="MBTI-tags" class="tags-container" style="display:none;">
-            <div class="tags"></div>
-        </div>
     </div>
 
     <div id="contest-details" class="contest-details" style="display: none;">
@@ -394,6 +391,9 @@
         </div>
         <div class="similar-contests">
             <!-- 유사한 공모전 목록이 여기에 동적으로 추가됩니다 -->
+        </div>
+        <div id="MBTI-tags" class="tags-container" style="display:none;">
+            <div class="tags"></div>
         </div>
     </div>
 
@@ -418,13 +418,13 @@
                     '스포츠', '사회복지', '법률/정책', '화학', '해양/수산', '무역/국제', '공공안전', '게임/엔터테인먼트', 
                     '반도체/전자', '도시계획/인프라'],
             'MBTI': ["ISTJ", "ISFJ", "INFJ", "INTJ", "ISTP", "ISFP", "INFP", "INTP", 
-                    "ESTP", "ESFP", "ENFP", "ENTP", "ESTJ", "ESFJ", "ENFJ", "ENTJ"]
+            "ESTP", "ESFP", "ENFP", "ENTP", "ESTJ", "ESFJ", "ENFJ", "ENTJ"]
         };
 
         let tfidfData;
         let activeDifficultyTags = new Set();
         let showOnlyNotExpired = false;
-        let activeMBTITag = null;
+        let activeMBTITags = new Set();
 
         function createCategoryButtons() {
             const categoryButtons = document.querySelectorAll('.category-button');
@@ -512,7 +512,6 @@
                 const tagElement = document.createElement('span');
                 tagElement.classList.add('tag');
                 tagElement.textContent = tag;
-                
                 tagElement.addEventListener('click', () => toggleTag(tagElement,category));
                 tagsContainer.appendChild(tagElement);
             });
@@ -525,42 +524,28 @@
             if (tagElement.classList.contains('disabled')) {
                 return; // 비활성화된 태그는 토글하지 않음
             }
-        
+    
             const tagText = tagElement.textContent;
-        
+
+            let tagCategory; 
+            
             if (category === '기술스택') {
-                if (tagElement.classList.contains('active')) {
-                    activeTechTags.delete(tagText);
-                } else {
-                    activeTechTags.add(tagText);
-                }
+                tagCategory = activeTechTags;
             } else if (category === '산업분야') {
-                if (tagElement.classList.contains('active')) {
-                    activeIndustryTags.delete(tagText);
-                } else {
-                    activeIndustryTags.add(tagText);
-                }
+                tagCategory = activeIndustryTags;
             } else if (category === 'MBTI') {
-                // MBTI 카테고리의 태그는 중복 선택 불가
-                if (activeMBTITag === tagText) {
-                    activeMBTITag = null;
-                    tagElement.classList.remove('active');
-                } else {
-                    // 이미 선택된 다른 MBTI 태그가 있다면 비활성화
-                    if (activeMBTITag) {
-                        const prevTagElement = document.querySelector(`#MBTI-tags .tag.active`);
-                        if (prevTagElement) {
-                            prevTagElement.classList.remove('active');
-                        }
-                    }
-                    activeMBTITag = tagText;
-                    tagElement.classList.add('active');
-                }
+                tagCategory = activeMBTITags;
             }
         
+            if (tagElement.classList.contains('active')) {
+                tagCategory.delete(tagText);
+            } else {
+                tagCategory.add(tagText);
+            }
+    
+            tagElement.classList.toggle('active');
             filterContests();
         }
-
         
         
         function filterContests() {
@@ -586,8 +571,7 @@
                     
                     const techStackMatch = activeTechTags.size === 0 || Array.from(activeTechTags).every(tag => contestTechStack.has(tag));
                     const industryMatch = activeIndustryTags.size === 0 || Array.from(activeIndustryTags).every(tag => contestIndustry.has(tag));
-                    const mbtiMatch = !activeMBTITag || contestMBTI.has(activeMBTITag); // 선택된 MBTI 태그와 일치
-                    
+                    const mbtiMatch = activeMBTITags.size === 0 || Array.from(activeMBTITags).every(tag => contestMBTI.has(tag));
                     // 개선된 난이도 매칭 로직 (공백 제거 후 정확한 일치 검사)
                     const difficultyMatch = activeDifficultyTags.size === 0 || 
                         Array.from(activeDifficultyTags).some(tag => {
@@ -599,7 +583,7 @@
                     
                     const notExpiredMatch = !showOnlyNotExpired || dDay !== "마감";
                     
-                    const shouldShow = techStackMatch && industryMatch && difficultyMatch && mbtiMatch && notExpiredMatch ;
+                    const shouldShow = techStackMatch && industryMatch && difficultyMatch && mbtiMatch && notExpiredMatch;
                     contest.style.display = shouldShow ? 'block' : 'none';
         
                     if (shouldShow) {
@@ -634,16 +618,15 @@
         }
 
         function updateCategoryTagsStatus(category, availableTags) {
-            const tagsContainer = document.querySelector(`#${category}-tags .tags`);
-            const tags = tagsContainer.querySelectorAll('.tag');
-        
-            tags.forEach(tagElement => {
-                const tagText = tagElement.textContent;
-        
-                if (availableTags.size === 0 || availableTags.has(tagText)) {
-                    tagElement.classList.remove('disabled'); // 비활성화 클래스를 제거하여 태그 활성화
+            const tags = document.querySelectorAll(`#${category}-tags .tag, #${category}-tags .difficulty-tag`);
+            tags.forEach(tag => {
+                const tagText = category === '난이도' ? tag.textContent.split(' ')[0] : tag.textContent;
+                if (availableTags.has(tagText)) {
+                    tag.classList.remove('disabled');
+                    tag.style.backgroundColor = '';
                 } else {
-                    tagElement.classList.add('disabled'); // 사용 가능한 태그가 아니면 비활성화
+                    tag.classList.add('disabled');
+                    tag.style.backgroundColor = 'gray';
                 }
             });
         }
@@ -705,11 +688,11 @@
             return '🔥'.repeat(iconCount);
         }
 
-        function showContestDetails(contest) {
+        function handleContestClick(contest) {
             const contestDetailsElement = document.getElementById('contest-details');
             const contestInfoDetailedElement = contestDetailsElement.querySelector('.contest-info-detailed');
             const similarContestsElement = contestDetailsElement.querySelector('.similar-contests');
-        
+
             window.scrollTo({
                 top: 0,
                 behavior: 'smooth'
@@ -728,10 +711,11 @@
                     <p class="d-day">${calculateDDay(contest.기간.split('~')[1].trim())}</p>
                 </div>
                 <div class="contest-introduction">
+                   
                     <pre>${contest['공모전 소개']}</pre>
                 </div>
             `;
-        
+
             similarContestsElement.innerHTML = ''; // 기존 내용 초기화
             
             const similarContests = findSimilarContests(contest, contestData, tfidfData)
@@ -754,39 +738,10 @@
                 similarContestElement.addEventListener('click', () => handleContestClick(similarContest));
                 similarContestsElement.appendChild(similarContestElement);
             }); 
-        
-            // URL 업데이트
-            const urlParams = new URLSearchParams(window.location.search);
-            urlParams.set('contest', contest.공모전명);
-            window.history.pushState({ contestName: contest.공모전명 }, '', `${window.location.pathname}?${urlParams}`);
-        
-            // 상세 페이지 표시
+            
             contestDetailsElement.style.display = 'flex';
-            document.getElementById('contests').style.display = 'none';
         }
 
-        function showContestList() {
-            document.getElementById('contest-details').style.display = 'none';
-            document.getElementById('contests').style.display = 'grid';
-            window.history.pushState(null, '', window.location.pathname);
-        }
-
-        // 뒤로가기 이벤트 처리
-        window.onpopstate = function(event) {
-            if (event.state && event.state.contestName) {
-                const contest = contestData.find(c => c.공모전명 === event.state.contestName);
-                if (contest) {
-                    showContestDetails(contest);
-                }
-            } else {
-                showContestList();
-            }
-        };
-
-        // 공모전 카드 클릭 이벤트 수정
-        function handleContestClick(contest) {
-            showContestDetails(contest);
-        }
         function searchContests() {
             const searchTerm = document.getElementById('search-input').value.toLowerCase();
             const contests = document.querySelectorAll('.contest');
@@ -912,12 +867,24 @@
             });
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            createTags('기술스택');
-            createTags('산업분야');
-            createTags('난이도');
-            createTags('MBTI');
-            filterContests();  // 초기 필터링 호출
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            
+            const searchInput = document.getElementById('search-input');
+            const searchButton = document.getElementById('search-button');
+            const favoriteButton = document.querySelector('.favorite-button');
+            favoriteButton.addEventListener('click', showOnlyFavorites);
+    
+            if (searchButton && searchInput) {
+                searchButton.addEventListener('click', searchContests);
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        searchContests();
+                    }
+                });
+            } else {
+                console.error("Search elements not found");
+            }
         });
         function initializeApp() {
             if (typeof contestData === 'undefined') {
@@ -930,20 +897,9 @@
             createContestCards();
             initializeDifficultyTags(); // 새로 추가된 함수 호출
             filterContests(); // 초기 필터링 적용
-            // TF-IDF 계산
+        // TF-IDF 계산
             const documents = contestData.map(contest => `${contest.공모전명} ${contest.기관명} ${contest['Tech Stack']} ${contest['Tags']}`);
             tfidfData = calculateTFIDF(documents);
-
-            // URL 파라미터 체크
-            const urlParams = new URLSearchParams(window.location.search);
-            const contestName = urlParams.get('contest');
-            if (contestName) {
-                const contest = contestData.find(c => c.공모전명 === contestName);
-                if (contest) {
-                    showContestDetails(contest);
-                }
-            }
-            document.getElementById('back-button').addEventListener('click', showContestList);
         }
 
     // DOM이 로드된 후 앱 초기화
