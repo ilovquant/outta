@@ -528,18 +528,6 @@
             const tagText = tagElement.textContent;
             const tagCategory = tagElement.closest('.tags-container').id.includes('기술스택') ? activeTechTags : activeIndustryTags;
 
-            switch(category) {
-                case '기술스택':
-                    tagCategory = activeTechTags;
-                    break;
-                case '산업분야':
-                    tagCategory = activeIndustryTags;
-                    break;
-                case 'MBTI':
-                    tagCategory = activeMBTITags;
-                    break;
-                // 다른 카테고리에 대한 처리 추가 가능
-            }
             if (tagElement.classList.contains('active')) {
                 tagCategory.delete(tagText);
             } else {
