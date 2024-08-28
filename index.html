@@ -398,6 +398,10 @@
             background-color: #F20303;
         }
 
+        .dark-mode .tag {
+            background-color: #4a4a4a;
+        }
+
         .dark-mode .tag.active,
         .dark-mode .difficulty-tag.active {
             background-color: #F20303;
@@ -704,6 +708,13 @@
                 tagElement.classList.add('tag');
                 tagElement.textContent = tag;
                 tagElement.addEventListener('click', () => toggleTag(tagElement, category));
+                // 초기 스타일 설정
+                if (isDarkMode) {
+                    tagElement.style.backgroundColor = '';
+                } else {
+                    tagElement.style.backgroundColor = '#F9840C';
+                }
+                
                 tagsContainer.appendChild(tagElement);
             });
         }
@@ -716,11 +727,6 @@
                 return; // 비활성화된 태그는 토글하지 않음
             }
 
-            tagElement.classList.toggle('active');
-            if (isDarkMode) {
-                tagElement.style.backgroundColor = tagElement.classList.contains('active') ? '#F20303' : '';
-            }
-    
             const tagText = tagElement.textContent;
             let tagCategory;
 
@@ -734,10 +740,18 @@
         
             if (tagElement.classList.contains('active')) {
                 tagCategory.delete(tagText);
+                tagElement.classList.remove('active');
             } else {
                 tagCategory.add(tagText);
+                tagElement.classList.add('active');
             }
-        
+
+            if (isDarkMode) {
+                tagElement.style.backgroundColor = tagElement.classList.contains('active') ? '#F20303' : '';
+            } else {
+                tagElement.style.backgroundColor = tagElement.classList.contains('active') ? '#4CAF50' : '';
+            }
+
             filterContests();
             updateState();
         }
