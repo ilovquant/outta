@@ -564,17 +564,16 @@
                 const contestData = contestDataMap.get(contestTitle);
         
                 if (contestData) {
+                    // Ensure 'Tech Stack' is always an array of trimmed strings
                     const contestTechStack = Array.isArray(contestData['Tech Stack']) 
-                        ? contestData['Tech Stack'] 
+                        ? contestData['Tech Stack'].map(tag => tag.trim())
                         : (contestData['Tech Stack'] ? contestData['Tech Stack'].split(',').map(tag => tag.trim()) : []);
-                    
-                    const filteredTechStack = contestTechStack.filter(tag => categories['기술스택'].includes(tag));
                     
                     const contestIndustry = contestData['Tags'] ? contestData['Tags'].split(',').map(tag => tag.trim()) : [];
                     const contestDifficulty = contestData['난이도'];
                     const contestMBTI = contestData['MBTI'] ? contestData['MBTI'].split(',').map(tag => tag.trim()) : [];
         
-                    const techStackMatch = activeTechTags.size === 0 || filteredTechStack.some(tag => activeTechTags.has(tag));
+                    const techStackMatch = activeTechTags.size === 0 || contestTechStack.some(tag => activeTechTags.has(tag));
                     const industryMatch = activeIndustryTags.size === 0 || contestIndustry.some(tag => activeIndustryTags.has(tag));
                     const difficultyMatch = activeDifficultyTags.size === 0 || activeDifficultyTags.has(contestDifficulty);
                     const mbtiMatch = activeMBTITags.size === 0 || contestMBTI.some(tag => activeMBTITags.has(tag));
@@ -586,7 +585,7 @@
                     contest.style.display = shouldShow ? 'block' : 'none';
         
                     if (shouldShow) {
-                        filteredTechStack.forEach(tag => availableTechTags.add(tag));
+                        contestTechStack.forEach(tag => availableTechTags.add(tag));
                         contestIndustry.forEach(tag => availableIndustryTags.add(tag));
                         availableDifficultyTags.add(contestDifficulty);
                         contestMBTI.forEach(tag => availableMBTITags.add(tag));
@@ -596,11 +595,7 @@
                     contest.style.display = 'none';
                 }
             });
-
-            console.log('Active Tech Tags:', Array.from(activeTechTags));
-            console.log('Filtered Tech Stack:', filteredTechStack);
-            console.log('Tech Stack Match:', techStackMatch);
-
+        
             updateTagsStatus(availableTechTags, availableIndustryTags, availableDifficultyTags, availableMBTITags);
         }
 
@@ -926,7 +921,7 @@
             filterContests();
             
             // TF-IDF 계산
-            const documents = contestData.map(contest => `${contest.공모전명} ${contest.기관명} ${contest['Tech Stack']} ${contest['Tags']}`);
+            const documents = contestData.map(contest => `${contest.공모전명} ${contest.기관명} ${contest['Tech Stack'].join(' ')} ${contest['Tags']}`);
             tfidfData = calculateTFIDF(documents);
         }
 
