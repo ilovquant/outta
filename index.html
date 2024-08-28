@@ -525,7 +525,7 @@
                 return;
             }
         
-            const tagText = tagElement.textContent;
+            const tagText = tagElement.textContent.trim();
             let tagCategory;
         
             if (tagElement.closest('.tags-container').id.includes('기술스택')) {
@@ -534,17 +534,20 @@
                 tagCategory = activeIndustryTags;
             } else if (tagElement.closest('.tags-container').id.includes('난이도')) {
                 tagCategory = activeDifficultyTags;
-            } else if (tagElement.closest('.tags-container').id.includes('MBTI')) { // 새로 추가
+            } else if (tagElement.closest('.tags-container').id.includes('MBTI')) {
                 tagCategory = activeMBTITags;
             }
         
             if (tagElement.classList.contains('active')) {
                 tagCategory.delete(tagText);
+                tagElement.classList.remove('active');
             } else {
                 tagCategory.add(tagText);
+                tagElement.classList.add('active');
             }
-        
-            tagElement.classList.toggle('active');
+
+            console.log('Toggled Tag:', tagText);
+            console.log('Active Tags After Toggle:', Array.from(tagCategory));
             filterContests();
         }
         
@@ -561,12 +564,10 @@
                 const contestData = contestDataMap.get(contestTitle);
         
                 if (contestData) {
-                    // 'Tech Stack' 필드가 문자열이 아닌 배열일 경우를 대비
                     const contestTechStack = Array.isArray(contestData['Tech Stack']) 
                         ? contestData['Tech Stack'] 
                         : (contestData['Tech Stack'] ? contestData['Tech Stack'].split(',').map(tag => tag.trim()) : []);
                     
-                    // categories['기술스택']에 있는 태그만 필터링
                     const filteredTechStack = contestTechStack.filter(tag => categories['기술스택'].includes(tag));
                     
                     const contestIndustry = contestData['Tags'] ? contestData['Tags'].split(',').map(tag => tag.trim()) : [];
@@ -595,7 +596,11 @@
                     contest.style.display = 'none';
                 }
             });
-        
+
+            console.log('Active Tech Tags:', Array.from(activeTechTags));
+            console.log('Filtered Tech Stack:', filteredTechStack);
+            console.log('Tech Stack Match:', techStackMatch);
+
             updateTagsStatus(availableTechTags, availableIndustryTags, availableDifficultyTags, availableMBTITags);
         }
 
@@ -859,8 +864,8 @@
                 techTagsContainer.appendChild(tagElement);
             });
         
-            // 모든 태그를 활성 상태로 설정
-            activeTechTags = new Set(categories['기술스택']);
+            // 모든 태그를 비활성 상태로 시작
+            activeTechTags = new Set();
         }
         
         function initializeDifficultyTags() {
