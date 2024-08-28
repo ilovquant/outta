@@ -845,12 +845,28 @@
         });
 
         function initializeTechTags() {
-            const techTags = document.querySelectorAll('#기술스택-tags .tag');
-            techTags.forEach(tag => {
-                tag.classList.remove('disabled');
-                tag.style.backgroundColor = '';
-                activeTechTags.add(tag.textContent.trim());
+            const allTechTags = new Set();
+            contestDataMap.forEach(contest => {
+                if (Array.isArray(contest['Tech Stack'])) {
+                    contest['Tech Stack'].forEach(tag => allTechTags.add(tag.trim()));
+                }
             });
+        
+            console.log("All available tech tags:", Array.from(allTechTags));
+        
+            const techTagsContainer = document.getElementById('기술스택-tags');
+            techTagsContainer.innerHTML = ''; // 기존 태그 제거
+        
+            allTechTags.forEach(tag => {
+                const tagElement = document.createElement('span');
+                tagElement.textContent = tag;
+                tagElement.classList.add('tag');
+                tagElement.addEventListener('click', () => toggleTag(tagElement));
+                techTagsContainer.appendChild(tagElement);
+            });
+        
+            // 모든 태그를 활성 상태로 설정
+            activeTechTags = new Set(allTechTags);
         }
         
         function initializeDifficultyTags() {
@@ -889,8 +905,20 @@
                 return;
             }
         
-            // contestDataMap 초기화
-            contestDataMap = new Map(contestData.map(contest => [contest.공모전명, contest]));
+            console.log("Initial contest data:", contestData);
+        
+            // contestDataMap 초기화 및 데이터 정제
+            contestDataMap = new Map(contestData.map(contest => {
+                // 'Tech Stack' 필드 정제
+                if (typeof contest['Tech Stack'] === 'string') {
+                    contest['Tech Stack'] = contest['Tech Stack'].split(',').map(tag => tag.trim());
+                } else if (!Array.isArray(contest['Tech Stack'])) {
+                    contest['Tech Stack'] = [];
+                }
+                return [contest.공모전명, contest];
+            }));
+        
+            console.log("Processed contestDataMap:", Array.from(contestDataMap.entries()));
         
             createCategoryButtons();
             createContestCards();
