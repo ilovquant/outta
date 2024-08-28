@@ -551,41 +551,37 @@
         
         function filterContests() {
             const contests = document.querySelectorAll('.contest');
-            let availableTechTags = new Set();
-            let availableIndustryTags = new Set();
-            let availableDifficultyTags = new Set();
-            let availableMBTITags = new Set();
-            
-            console.log('Active difficulty tags:', Array.from(activeDifficultyTags)); // 디버깅 로그
-            
+            const availableTechTags = new Set();
+            const availableIndustryTags = new Set();
+            const availableDifficultyTags = new Set();
+            const availableMBTITags = new Set(); // 새로 추가
+        
             contests.forEach(contest => {
                 const contestTitle = contest.querySelector('.contest-title').textContent;
-                const contestInfo = contestData.find(data => data.공모전명 === contestTitle);
-                if (contestInfo) {
-                    const contestTechStack = new Set(contestInfo['Tech Stack'].split(' '));
-                    const contestIndustry = new Set(contestInfo['Tags'].split(' '));
-                    const contestDifficulty = contestInfo.난이도.replace(/\s+/g, '');
-                    const contestMBTI = new Set(contestInfo.MBTI.split(',')); // MBTI 정보 가져오기
+                const contestData = contestDataMap.get(contestTitle);
+        
+                if (contestData) {
+                    const contestTechStack = contestData['Tech Stack'].split(',').map(tag => tag.trim());
+                    const contestIndustry = contestData['Tags'].split(',').map(tag => tag.trim());
+                    const contestDifficulty = contestData['난이도'];
+                    const contestMBTI = contestData['MBTI'] ? contestData['MBTI'].split(',').map(tag => tag.trim()) : []; // 새로 추가
+        
+                    const techStackMatch = activeTechTags.size === 0 || contestTechStack.some(tag => activeTechTags.has(tag));
+                    const industryMatch = activeIndustryTags.size === 0 || contestIndustry.some(tag => activeIndustryTags.has(tag));
+                    const difficultyMatch = activeDifficultyTags.size === 0 || activeDifficultyTags.has(contestDifficulty);
+                    const mbtiMatch = activeMBTITags.size === 0 || contestMBTI.some(tag => activeMBTITags.has(tag)); // 새로 추가
+        
                     const dDay = contest.querySelector('.d-day').textContent;
-                    
-                    const techStackMatch = activeTechTags.size === 0 || Array.from(activeTechTags).every(tag => contestTechStack.has(tag));
-                    const industryMatch = activeIndustryTags.size === 0 || Array.from(activeIndustryTags).every(tag => contestIndustry.has(tag));
-                    const difficultyMatch = activeDifficultyTags.size === 0 || 
-                        Array.from(activeDifficultyTags).some(tag => {
-                            const normalizedTag = tag.replace(/\s+/g, '');
-                            return normalizedTag === contestDifficulty;
-                        });
-                    const mbtiMatch = activeMBTITags.size === 0 || Array.from(activeMBTITags).some(tag => contestMBTI.has(tag));
                     const notExpiredMatch = !showOnlyNotExpired || dDay !== "마감";
-                    
-                    const shouldShow = techStackMatch && industryMatch && difficultyMatch && mbtiMatch && notExpiredMatch;
+        
+                    const shouldShow = techStackMatch && industryMatch && difficultyMatch && mbtiMatch && notExpiredMatch; // mbtiMatch 추가
                     contest.style.display = shouldShow ? 'block' : 'none';
         
                     if (shouldShow) {
                         contestTechStack.forEach(tag => availableTechTags.add(tag));
                         contestIndustry.forEach(tag => availableIndustryTags.add(tag));
                         availableDifficultyTags.add(contestDifficulty);
-                        contestMBTI.forEach(tag => availableMBTITags.add(tag));
+                        contestMBTI.forEach(tag => availableMBTITags.add(tag)); // 새로 추가
                     }
                 } else {
                     console.error('Contest not found:', contestTitle);
@@ -593,13 +589,7 @@
                 }
             });
         
-            console.log('Available difficulty tags:', Array.from(availableDifficultyTags)); // 디버깅 로그
-        
-            updateTagsStatus(availableTechTags, availableIndustryTags, availableDifficultyTags, availableMBTITags);
-        
-            // 필터링 결과 요약
-            const visibleContests = document.querySelectorAll('.contest[style="display: block;"]');
-            console.log(`Visible contests after filtering: ${visibleContests.length}`);
+            updateTagsStatus(availableTechTags, availableIndustryTags, availableDifficultyTags, availableMBTITags); // availableMBTITags 추가
         }
 
         function updateTagsStatus(availableTechTags, availableIndustryTags, availableDifficultyTags, availableMBTITags) {
