@@ -566,11 +566,14 @@
                         ? contestData['Tech Stack'] 
                         : (contestData['Tech Stack'] ? contestData['Tech Stack'].split(',').map(tag => tag.trim()) : []);
                     
+                    // categories['기술스택']에 있는 태그만 필터링
+                    const filteredTechStack = contestTechStack.filter(tag => categories['기술스택'].includes(tag));
+                    
                     const contestIndustry = contestData['Tags'] ? contestData['Tags'].split(',').map(tag => tag.trim()) : [];
                     const contestDifficulty = contestData['난이도'];
                     const contestMBTI = contestData['MBTI'] ? contestData['MBTI'].split(',').map(tag => tag.trim()) : [];
         
-                    const techStackMatch = activeTechTags.size === 0 || contestTechStack.some(tag => activeTechTags.has(tag));
+                    const techStackMatch = activeTechTags.size === 0 || filteredTechStack.some(tag => activeTechTags.has(tag));
                     const industryMatch = activeIndustryTags.size === 0 || contestIndustry.some(tag => activeIndustryTags.has(tag));
                     const difficultyMatch = activeDifficultyTags.size === 0 || activeDifficultyTags.has(contestDifficulty);
                     const mbtiMatch = activeMBTITags.size === 0 || contestMBTI.some(tag => activeMBTITags.has(tag));
@@ -582,7 +585,7 @@
                     contest.style.display = shouldShow ? 'block' : 'none';
         
                     if (shouldShow) {
-                        contestTechStack.forEach(tag => availableTechTags.add(tag));
+                        filteredTechStack.forEach(tag => availableTechTags.add(tag));
                         contestIndustry.forEach(tag => availableIndustryTags.add(tag));
                         availableDifficultyTags.add(contestDifficulty);
                         contestMBTI.forEach(tag => availableMBTITags.add(tag));
@@ -845,19 +848,10 @@
         });
 
         function initializeTechTags() {
-            const allTechTags = new Set();
-            contestDataMap.forEach(contest => {
-                if (Array.isArray(contest['Tech Stack'])) {
-                    contest['Tech Stack'].forEach(tag => allTechTags.add(tag.trim()));
-                }
-            });
-        
-            console.log("All available tech tags:", Array.from(allTechTags));
-        
             const techTagsContainer = document.getElementById('기술스택-tags');
             techTagsContainer.innerHTML = ''; // 기존 태그 제거
         
-            allTechTags.forEach(tag => {
+            categories['기술스택'].forEach(tag => {
                 const tagElement = document.createElement('span');
                 tagElement.textContent = tag;
                 tagElement.classList.add('tag');
@@ -866,7 +860,7 @@
             });
         
             // 모든 태그를 활성 상태로 설정
-            activeTechTags = new Set(allTechTags);
+            activeTechTags = new Set(categories['기술스택']);
         }
         
         function initializeDifficultyTags() {
