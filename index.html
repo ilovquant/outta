@@ -520,7 +520,7 @@
         let activeTechTags = new Set();
         let activeIndustryTags = new Set(); 
         
-        function toggleTag(tagElement) {
+        function toggleTag(tagElement, category) {
             if (tagElement.classList.contains('disabled')) {
                 return; // 비활성화된 태그는 토글하지 않음
             }
@@ -610,7 +610,7 @@
             console.log(`Visible contests after filtering: ${visibleContests.length}`);
         }
 
-        function updateTagsStatus(availableTechTags, availableIndustryTags, availableDifficultyTags) {
+        function updateTagsStatus(availableTechTags, availableIndustryTags, availableDifficultyTags, availableMBTITags) {
             updateCategoryTagsStatus('기술스택', availableTechTags);
             updateCategoryTagsStatus('산업분야', availableIndustryTags);
             updateCategoryTagsStatus('난이도', availableDifficultyTags);
