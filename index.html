@@ -737,8 +737,39 @@
                 similarContestElement.addEventListener('click', () => handleContestClick(similarContest));
                 similarContestsElement.appendChild(similarContestElement);
             }); 
+            // 브라우저 히스토리에 상태 추가
+            const state = { contestId: contest.공모전명 };
+            const title = contest.공모전명;
+            const url = `?contest=${encodeURIComponent(contest.공모전명)}`;
+            history.pushState(state, title, url);
             
             contestDetailsElement.style.display = 'flex';
+            
+        }
+
+        function handlePopState(event) {
+            if (event.state && event.state.contestId) {
+                const contest = contestData.find(c => c.공모전명 === event.state.contestId);
+                if (contest) {
+                    handleContestClick(contest);
+                } else {
+                    document.getElementById('contest-details').style.display = 'none';
+                    window.scrollTo(0, 0);
+                }
+            } else {
+                document.getElementById('contest-details').style.display = 'none';
+                window.scrollTo(0, 0);
+            }
+        }
+        function handleInitialLoad() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const contestParam = urlParams.get('contest');
+            if (contestParam) {
+                const contest = contestData.find(c => c.공모전명 === decodeURIComponent(contestParam));
+                if (contest) {
+                    handleContestClick(contest);
+                }
+            }
         }
 
         function searchContests() {
@@ -899,6 +930,12 @@
         // TF-IDF 계산
             const documents = contestData.map(contest => `${contest.공모전명} ${contest.기관명} ${contest['Tech Stack']} ${contest['Tags']}`);
             tfidfData = calculateTFIDF(documents);
+        
+            // 뒤로가기 이벤트 리스너 추가
+            window.addEventListener('popstate', handlePopState);
+        
+            // 초기 페이지 로드 처리
+            handleInitialLoad();
         }
 
     // DOM이 로드된 후 앱 초기화
