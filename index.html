@@ -880,9 +880,11 @@
                 const category = button.dataset.category;
                 if (category === '마감X') {
                     button.classList.toggle('active', showOnlyNotExpired);
-                } else {
+                } else if (category) {
                     const tagsContainer = document.getElementById(`${category}-tags`);
-                    tagsContainer.style.display = (activeTechTags.size > 0 || activeIndustryTags.size > 0 || activeDifficultyTags.size > 0 || activeMBTITags.size > 0) ? 'block' : 'none';
+                    if (tagsContainer) {
+                        tagsContainer.style.display = (activeTechTags.size > 0 || activeIndustryTags.size > 0 || activeDifficultyTags.size > 0 || activeMBTITags.size > 0) ? 'block' : 'none';
+                    }
                 }
             });
         
@@ -894,10 +896,13 @@
         }
         
         function updateTagsUI(category, activeTags) {
-            const tags = document.querySelectorAll(`#${category}-tags .tag, #${category}-tags .difficulty-tag`);
-            tags.forEach(tag => {
-                tag.classList.toggle('active', activeTags.has(tag.textContent));
-            });
+            const tagsContainer = document.getElementById(`${category}-tags`);
+            if (tagsContainer) {
+                const tags = tagsContainer.querySelectorAll('.tag, .difficulty-tag');
+                tags.forEach(tag => {
+                    tag.classList.toggle('active', activeTags.has(tag.textContent));
+                });
+            }
         }
         function handleInitialLoad() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -917,16 +922,20 @@
                 showOnlyNotExpired = urlParams.get('showOnlyNotExpired') === 'true';
                 isDarkMode = urlParams.get('isDarkMode') === 'true';
         
-                updateUI();
-                filterContests();
-
                 // Dark mode 상태 복원
                 document.body.classList.toggle('dark-mode', isDarkMode);
                 const darkModeToggle = document.getElementById('dark-mode-toggle');
-                darkModeToggle.classList.toggle('dark', isDarkMode);
-                darkModeToggle.textContent = isDarkMode ? 'LIGHT' : 'DARK';
+                if (darkModeToggle) {
+                    darkModeToggle.classList.toggle('dark', isDarkMode);
+                    darkModeToggle.textContent = isDarkMode ? 'LIGHT' : 'DARK';
+                }
                 const logo = document.querySelector('.logo');
-                logo.src = isDarkMode ? './bunny.png' : './bunny2.png';
+                if (logo) {
+                    logo.src = isDarkMode ? './bunny.png' : './bunny2.png';
+                }
+        
+                updateUI();
+                filterContests();
             }
         }
 
@@ -1078,24 +1087,32 @@
             if (typeof contestData === 'undefined') {
                 document.getElementById('error-message').style.display = 'block';
                 document.getElementById('error-message').textContent = 'Contest data could not be loaded. Please check your internet connection and refresh the page.';
-                // Dark mode 토글 버튼에 이벤트 리스너 추가
-                document.getElementById('dark-mode-toggle').addEventListener('click', toggleDarkMode);
+                
                 return;
             }
     
             createCategoryButtons();
             createContestCards();
             initializeDifficultyTags(); // 새로 추가된 함수 호출
-            filterContests(); // 초기 필터링 적용
-        // TF-IDF 계산
-            const documents = contestData.map(contest => `${contest.공모전명} ${contest.기관명} ${contest['Tech Stack']} ${contest['Tags']}`);
-            tfidfData = calculateTFIDF(documents);
+            
+            
+             // Dark mode 토글 버튼에 이벤트 리스너 추가
+            const darkModeToggle = document.getElementById('dark-mode-toggle');
+            if (darkModeToggle) {
+                darkModeToggle.addEventListener('click', toggleDarkMode);
+            }
         
             // 뒤로가기 이벤트 리스너 추가
             window.addEventListener('popstate', handlePopState);
         
             // 초기 페이지 로드 처리
             handleInitialLoad();
+
+            // TF-IDF 계산
+            const documents = contestData.map(contest => `${contest.공모전명} ${contest.기관명} ${contest['Tech Stack']} ${contest['Tags']}`);
+            tfidfData = calculateTFIDF(documents);
+
+            filterContests(); // 초기 필터링 적용
         }
 
     // DOM이 로드된 후 앱 초기화
