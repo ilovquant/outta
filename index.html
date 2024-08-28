@@ -71,6 +71,10 @@
             background-color: #FFD580;
             gap: 10px
         }
+
+        body.dark-mode .category-buttons {
+            background-color: #1F1F1F;
+        }
         .category-button {
             padding: 10px 20px;
             margin-bottom: 10px;
@@ -509,6 +513,16 @@
 
             // 카테고리 버튼 색상 업데이트
             updateCategoryButtonColors();
+
+            // 카테고리 버튼 배경색 업데이트
+            const categoryButtons = document.querySelector('.category-buttons');
+            const topBar = document.querySelector('.top-bar');
+            if (categoryButtons) {
+                categoryButtons.style.backgroundColor = isDarkMode ? '#1F1F1F' : '#FFD580';
+            }
+            if (topBar) {
+                topBar.style.backgroundColor = isDarkMode ? '#1F1F1F' : '#FFD580';
+            }
             
             // 상태 업데이트 및 히스토리에 추가
             updateState();
