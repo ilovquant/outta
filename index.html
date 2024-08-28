@@ -512,6 +512,7 @@
                 const tagElement = document.createElement('span');
                 tagElement.classList.add('tag');
                 tagElement.textContent = tag;
+                
                 tagElement.addEventListener('click', () => toggleTag(tagElement,category));
                 tagsContainer.appendChild(tagElement);
             });
@@ -583,7 +584,7 @@
                     
                     const notExpiredMatch = !showOnlyNotExpired || dDay !== "마감";
                     
-                    const shouldShow = techStackMatch && industryMatch && difficultyMatch && notExpiredMatch && mbtiMatch ;
+                    const shouldShow = techStackMatch && industryMatch && difficultyMatch && mbtiMatch && notExpiredMatch ;
                     contest.style.display = shouldShow ? 'block' : 'none';
         
                     if (shouldShow) {
@@ -624,10 +625,10 @@
             tags.forEach(tagElement => {
                 const tagText = tagElement.textContent;
         
-                if (availableTags.has(tagText)) {
-                    tagElement.classList.remove('disabled'); // 비활성화 클래스 제거
+                if (availableTags.size === 0 || availableTags.has(tagText)) {
+                    tagElement.classList.remove('disabled'); // 비활성화 클래스를 제거하여 태그 활성화
                 } else {
-                    tagElement.classList.add('disabled'); // 비활성화 클래스 추가
+                    tagElement.classList.add('disabled'); // 사용 가능한 태그가 아니면 비활성화
                 }
             });
         }
@@ -868,24 +869,12 @@
             });
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeApp();
-            
-            const searchInput = document.getElementById('search-input');
-            const searchButton = document.getElementById('search-button');
-            const favoriteButton = document.querySelector('.favorite-button');
-            favoriteButton.addEventListener('click', showOnlyFavorites);
-    
-            if (searchButton && searchInput) {
-                searchButton.addEventListener('click', searchContests);
-                searchInput.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        searchContests();
-                    }
-                });
-            } else {
-                console.error("Search elements not found");
-            }
+        document.addEventListener('DOMContentLoaded', () => {
+            createTags('기술스택');
+            createTags('산업분야');
+            createTags('난이도');
+            createTags('MBTI');
+            filterContests();  // 초기 필터링 호출
         });
         function initializeApp() {
             if (typeof contestData === 'undefined') {
