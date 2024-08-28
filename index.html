@@ -560,11 +560,13 @@
                 handleDifficultyButton(button);
             } else if (category === "마감X") {
                 handleNotExpiredButton(button);
-            } else {
+            } else if (category) {
                 const tagsContainer = document.getElementById(`${category}-tags`);
-                tagsContainer.style.display = button.classList.contains('active') ? 'block' : 'none';
-                if (tagsContainer.style.display === 'block' && tagsContainer.querySelector('.tags').children.length === 0) {
-                    createTags(category);
+                if (tagsContainer) {
+                    tagsContainer.style.display = button.classList.contains('active') ? 'block' : 'none';
+                    if (tagsContainer.style.display === 'block' && tagsContainer.querySelector('.tags').children.length === 0) {
+                        createTags(category);
+                    }
                 }
             }
             
@@ -1141,9 +1143,11 @@
         });
         function initializeApp() {
             if (typeof contestData === 'undefined') {
-                document.getElementById('error-message').style.display = 'block';
-                document.getElementById('error-message').textContent = 'Contest data could not be loaded. Please check your internet connection and refresh the page.';
-                
+                const errorMessage = document.getElementById('error-message');
+                if (errorMessage) {
+                    errorMessage.style.display = 'block';
+                    errorMessage.textContent = 'Contest data could not be loaded. Please check your internet connection and refresh the page.';
+                }
                 return;
             }
     
