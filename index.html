@@ -345,11 +345,16 @@
         }
 
         #dark-mode-toggle {
-            margin-right: 10px;
+            margin-left: auto;
+            margin-right: 20px;
         }
         
         #dark-mode-toggle.dark {
             background-color: #F20303;
+        }
+
+        body.dark-mode .top-bar {
+            background-color: #1F1F1F;
         }
         
         body.dark-mode {
@@ -364,7 +369,15 @@
             background-color: #2c2c2c;
             color: #ffffff;
         }
+
+        .dark-mode .category-button.active {
+            background-color: #F20303;
+        }
         
+        .dark-mode .tag.active,
+        .dark-mode .difficulty-tag.active {
+            background-color: #F20303;
+        }
         .dark-mode .category-button:not(.active):not(#dark-mode-toggle) {
             background-color: #4a4a4a;
             color: #ffffff;
@@ -493,9 +506,31 @@
             // 배너 이미지 변경
             const logo = document.querySelector('.logo');
             logo.src = isDarkMode ? './bunny.png' : './bunny2.png';
+
+            // 카테고리 버튼 색상 업데이트
+            updateCategoryButtonColors();
             
             // 상태 업데이트 및 히스토리에 추가
             updateState();
+        }
+        function updateCategoryButtonColors() {
+            const categoryButtons = document.querySelectorAll('.category-button');
+            categoryButtons.forEach(button => {
+                if (button.classList.contains('active')) {
+                    button.style.backgroundColor = isDarkMode ? '#F20303' : '';
+                } else {
+                    button.style.backgroundColor = '';
+                }
+            });
+            
+            const tags = document.querySelectorAll('.tag, .difficulty-tag');
+            tags.forEach(tag => {
+                if (tag.classList.contains('active')) {
+                    tag.style.backgroundColor = isDarkMode ? '#F20303' : '';
+                } else {
+                    tag.style.backgroundColor = '';
+                }
+            });
         }
 
         function handleCategoryButtonClick(event) {
@@ -503,6 +538,9 @@
             const category = button.dataset.category;
             
             button.classList.toggle('active');
+            if (isDarkMode) {
+                button.style.backgroundColor = button.classList.contains('active') ? '#F20303' : '';
+            }
             
             if (category === "난이도") {
                 handleDifficultyButton(button);
@@ -590,6 +628,11 @@
             if (tagElement.classList.contains('disabled')) {
                 return; // 비활성화된 태그는 토글하지 않음
             }
+
+            tagElement.classList.toggle('active');
+            if (isDarkMode) {
+                tagElement.style.backgroundColor = tagElement.classList.contains('active') ? '#F20303' : '';
+            }
     
             const tagText = tagElement.textContent;
             let tagCategory;
@@ -608,7 +651,6 @@
                 tagCategory.add(tagText);
             }
         
-            tagElement.classList.toggle('active');
             filterContests();
             updateState();
         }
@@ -1094,6 +1136,11 @@
             createCategoryButtons();
             createContestCards();
             initializeDifficultyTags(); // 새로 추가된 함수 호출
+
+            // 카테고리 버튼 이벤트 리스너 추가
+            document.querySelectorAll('.category-button').forEach(button => {
+                button.addEventListener('click', handleCategoryButtonClick);
+            });
             
             
              // Dark mode 토글 버튼에 이벤트 리스너 추가
