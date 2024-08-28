@@ -424,7 +424,7 @@
         let tfidfData;
         let activeDifficultyTags = new Set();
         let showOnlyNotExpired = false;
-        let activeMBTITags = new Set();
+        let activeMBTITag = null;
 
         function createCategoryButtons() {
             const categoryButtons = document.querySelectorAll('.category-button');
@@ -527,22 +527,36 @@
             }
     
             const tagText = tagElement.textContent;
-            let tagCategory; 
-            
+
             if (category === '기술스택') {
-                tagCategory = activeTechTags;
+                if (tagElement.classList.contains('active')) {
+                    activeTechTags.delete(tagText);
+                } else {
+                    activeTechTags.add(tagText);
+                }
             } else if (category === '산업분야') {
-                tagCategory = activeIndustryTags;
+                if (tagElement.classList.contains('active')) {
+                    activeIndustryTags.delete(tagText);
+                } else {
+                    activeIndustryTags.add(tagText);
+                }
             } else if (category === 'MBTI') {
-                tagCategory = activeMBTITags;
+                // MBTI 카테고리의 태그는 중복 선택 불가
+                if (activeMBTITag === tagText) {
+                    activeMBTITag = null;
+                    tagElement.classList.remove('active');
+                } else {
+                    // 이미 선택된 다른 MBTI 태그가 있다면 비활성화
+                    if (activeMBTITag) {
+                        const prevTagElement = document.querySelector(`#MBTI-tags .tag.active`);
+                        if (prevTagElement) {
+                            prevTagElement.classList.remove('active');
+                        }
+                    }
+                    activeMBTITag = tagText;
+                }
             }
         
-            if (tagElement.classList.contains('active')) {
-                tagCategory.delete(tagText);
-            } else {
-                tagCategory.add(tagText);
-            }
-    
             tagElement.classList.toggle('active');
             filterContests();
         }
@@ -571,7 +585,7 @@
                     
                     const techStackMatch = activeTechTags.size === 0 || Array.from(activeTechTags).every(tag => contestTechStack.has(tag));
                     const industryMatch = activeIndustryTags.size === 0 || Array.from(activeIndustryTags).every(tag => contestIndustry.has(tag));
-                    const mbtiMatch = activeMBTITags.size === 0 || Array.from(activeMBTITags).every(tag => contestMBTI.has(tag));
+                    const mbtiMatch = !activeMBTITag || contestMBTI.has(activeMBTITag); // 선택된 MBTI 태그와 일치
                     
                     // 개선된 난이도 매칭 로직 (공백 제거 후 정확한 일치 검사)
                     const difficultyMatch = activeDifficultyTags.size === 0 || 
