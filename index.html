@@ -383,6 +383,9 @@
         <div id="난이도-tags" class="tags-container" style="display:none;">
             <div class="tags"></div>
         </div>
+        <div id="MBTI-tags" class="tags-container" style="display:none;">
+            <div class="tags"></div>
+        </div>
     </div>
 
     <div id="contest-details" class="contest-details" style="display: none;">
@@ -391,9 +394,6 @@
         </div>
         <div class="similar-contests">
             <!-- 유사한 공모전 목록이 여기에 동적으로 추가됩니다 -->
-        </div>
-        <div id="MBTI-tags" class="tags-container" style="display:none;">
-            <div class="tags"></div>
         </div>
     </div>
 
@@ -546,6 +546,8 @@
                 tagCategory = activeTechTags;
             } else if (category === '산업분야') {
                 tagCategory = activeIndustryTags;
+            } else if (category === '난이도') {
+                tagCategory = activeDifficultyTags;
             } else if (category === 'MBTI') {
                 tagCategory = activeMBTITags;
             }
