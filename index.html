@@ -343,6 +343,51 @@
         .difficulty-tag.active {
             background-color: #4CAF50;
         }
+
+        #dark-mode-toggle {
+            margin-right: 10px;
+        }
+        
+        #dark-mode-toggle.dark {
+            background-color: #F20303;
+        }
+        
+        body.dark-mode {
+            background-color: #1F1F1F;
+            color: #ffffff;
+        }
+        
+        .dark-mode .contest,
+        .dark-mode .contest-details,
+        .dark-mode .contest-introduction,
+        .dark-mode .similar-contest {
+            background-color: #2c2c2c;
+            color: #ffffff;
+        }
+        
+        .dark-mode .category-button:not(.active):not(#dark-mode-toggle) {
+            background-color: #4a4a4a;
+            color: #ffffff;
+        }
+        
+        .dark-mode .tag:not(.active),
+        .dark-mode .difficulty-tag:not(.active) {
+            background-color: #4a4a4a;
+            color: #ffffff;
+        }
+        
+        .dark-mode #search-input {
+            background-color: #2c2c2c;
+            color: #ffffff;
+            border-color: #4a4a4a;
+        }
+        
+        .dark-mode .contest-title,
+        .dark-mode .contest-organizer,
+        .dark-mode .contest-period,
+        .dark-mode .d-day {
+            color: #ffffff;
+        }
         
     </style>
 </head>
@@ -367,6 +412,7 @@
             <button class="category-button" id="not-expired-button" data-category="마감X" aria-label="마감되지 않은 공모전">마감X</button>
             <button class="category-button" data-category="MBTI" aria-label="MBTI 카테고리">MBTI</button>
         </div>
+            <button id="dark-mode-toggle" class="category-button">DARK</button>
         <div class="search-container">
             <input type="text" id="search-input" placeholder="공모전 검색...">
             <button id="search-button" aria-label="공모전 검색">검색</button>
@@ -433,6 +479,23 @@
                 button.removeEventListener('click', handleCategoryButtonClick);
                 button.addEventListener('click', handleCategoryButtonClick);
             });
+        }
+
+        let isDarkMode = false;
+        
+        function toggleDarkMode() {
+            isDarkMode = !isDarkMode;
+            document.body.classList.toggle('dark-mode', isDarkMode);
+            const darkModeToggle = document.getElementById('dark-mode-toggle');
+            darkModeToggle.classList.toggle('dark', isDarkMode);
+            darkModeToggle.textContent = isDarkMode ? 'LIGHT' : 'DARK';
+            
+            // 배너 이미지 변경
+            const logo = document.querySelector('.logo');
+            logo.src = isDarkMode ? './bunny.png' : './bunny2.png';
+            
+            // 상태 업데이트 및 히스토리에 추가
+            updateState();
         }
 
         function handleCategoryButtonClick(event) {
@@ -626,6 +689,7 @@
                 activeDifficultyTags: Array.from(activeDifficultyTags),
                 activeMBTITags: Array.from(activeMBTITags),
                 showOnlyNotExpired: showOnlyNotExpired
+                isDarkMode: isDarkMode
             };
             const title = "공모전 추천 사이트";
             const url = `?${new URLSearchParams(state).toString()}`;
@@ -781,10 +845,19 @@
                     activeDifficultyTags = new Set(event.state.activeDifficultyTags);
                     activeMBTITags = new Set(event.state.activeMBTITags);
                     showOnlyNotExpired = event.state.showOnlyNotExpired;
+                    isDarkMode = event.state.isDarkMode;
         
                     // UI 업데이트
                     updateUI();
                     filterContests();
+
+                    // Dark mode 상태 복원
+                    document.body.classList.toggle('dark-mode', isDarkMode);
+                    const darkModeToggle = document.getElementById('dark-mode-toggle');
+                    darkModeToggle.classList.toggle('dark', isDarkMode);
+                    darkModeToggle.textContent = isDarkMode ? 'LIGHT' : 'DARK';
+                    const logo = document.querySelector('.logo');
+                    logo.src = isDarkMode ? './bunny.png' : './bunny2.png';
                 }
             } else {
                 // 초기 상태로 복원
@@ -842,9 +915,18 @@
                 activeDifficultyTags = new Set(urlParams.getAll('activeDifficultyTags'));
                 activeMBTITags = new Set(urlParams.getAll('activeMBTITags'));
                 showOnlyNotExpired = urlParams.get('showOnlyNotExpired') === 'true';
+                isDarkMode = urlParams.get('isDarkMode') === 'true';
         
                 updateUI();
                 filterContests();
+
+                // Dark mode 상태 복원
+                document.body.classList.toggle('dark-mode', isDarkMode);
+                const darkModeToggle = document.getElementById('dark-mode-toggle');
+                darkModeToggle.classList.toggle('dark', isDarkMode);
+                darkModeToggle.textContent = isDarkMode ? 'LIGHT' : 'DARK';
+                const logo = document.querySelector('.logo');
+                logo.src = isDarkMode ? './bunny.png' : './bunny2.png';
             }
         }
 
@@ -996,6 +1078,8 @@
             if (typeof contestData === 'undefined') {
                 document.getElementById('error-message').style.display = 'block';
                 document.getElementById('error-message').textContent = 'Contest data could not be loaded. Please check your internet connection and refresh the page.';
+                // Dark mode 토글 버튼에 이벤트 리스너 추가
+                document.getElementById('dark-mode-toggle').addEventListener('click', toggleDarkMode);
                 return;
             }
     
