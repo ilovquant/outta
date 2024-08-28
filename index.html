@@ -435,6 +435,18 @@
             });
         }
 
+        // MBTI 태그 생성 함수 수정
+        function createMBTITags() {
+            const mbtiTagsContainer = document.querySelector('#MBTI-tags .tags');
+            mbtiTagsContainer.innerHTML = ''; // 기존 태그 삭제
+            categories['MBTI'].forEach(tag => {
+                const tagElement = document.createElement('span');
+                tagElement.classList.add('tag');
+                tagElement.textContent = tag;
+                tagElement.addEventListener('click', () => toggleTag(tagElement, 'MBTI'));
+                mbtiTagsContainer.appendChild(tagElement);
+            });
+        }
         function handleCategoryButtonClick(event) {
             const button = event.currentTarget;
             const category = button.dataset.category;
@@ -449,7 +461,11 @@
                 const tagsContainer = document.getElementById(`${category}-tags`);
                 tagsContainer.style.display = button.classList.contains('active') ? 'block' : 'none';
                 if (tagsContainer.style.display === 'block' && tagsContainer.querySelector('.tags').children.length === 0) {
-                    createTags(category);
+                    if (category === 'MBTI') {
+                        createMBTITags();
+                    } else {
+                        createTags(category);
+                    }
                 }
             }
             
@@ -524,10 +540,10 @@
             if (tagElement.classList.contains('disabled')) {
                 return; // 비활성화된 태그는 토글하지 않음
             }
-    
+        
             const tagText = tagElement.textContent;
-
-            let tagCategory; 
+        
+            let tagCategory;
             
             if (category === '기술스택') {
                 tagCategory = activeTechTags;
@@ -542,7 +558,7 @@
             } else {
                 tagCategory.add(tagText);
             }
-    
+        
             tagElement.classList.toggle('active');
             filterContests();
         }
@@ -896,6 +912,7 @@
             createCategoryButtons();
             createContestCards();
             initializeDifficultyTags(); // 새로 추가된 함수 호출
+            createMBTITags(); // MBTI 태그 생성 추가
             filterContests(); // 초기 필터링 적용
         // TF-IDF 계산
             const documents = contestData.map(contest => `${contest.공모전명} ${contest.기관명} ${contest['Tech Stack']} ${contest['Tags']}`);
