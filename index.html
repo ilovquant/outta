@@ -529,17 +529,9 @@
             const tagText = tagElement.textContent;
         
             if (category === '기술스택') {
-                if (tagElement.classList.contains('active')) {
-                    activeTechTags.delete(tagText);
-                } else {
-                    activeTechTags.add(tagText);
-                }
+                // 기존 로직 유지
             } else if (category === '산업분야') {
-                if (tagElement.classList.contains('active')) {
-                    activeIndustryTags.delete(tagText);
-                } else {
-                    activeIndustryTags.add(tagText);
-                }
+                // 기존 로직 유지
             } else if (category === 'MBTI') {
                 // MBTI 카테고리의 태그는 중복 선택 불가
                 if (activeMBTITag === tagText) {
@@ -897,6 +889,7 @@
                 document.getElementById('error-message').textContent = 'Contest data could not be loaded. Please check your internet connection and refresh the page.';
                 return;
             }
+            createTags('MBTI');
     
             createCategoryButtons();
             createContestCards();
