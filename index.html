@@ -525,9 +525,9 @@
             if (tagElement.classList.contains('disabled')) {
                 return; // 비활성화된 태그는 토글하지 않음
             }
-    
+        
             const tagText = tagElement.textContent;
-
+        
             if (category === '기술스택') {
                 if (tagElement.classList.contains('active')) {
                     activeTechTags.delete(tagText);
@@ -560,6 +560,7 @@
         
             filterContests();
         }
+
         
         
         function filterContests() {
