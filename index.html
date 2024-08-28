@@ -427,6 +427,13 @@
         let showOnlyNotExpired = false;
         let activeMBTITags = new Set();
 
+        let activeTags = {
+            '기술스택': new Set(),
+            '산업분야': new Set(),
+            '난이도': new Set(),
+            'MBTI': new Set()
+        };
+
         function createCategoryButtons() {
             const categoryButtons = document.querySelectorAll('.category-button');
             categoryButtons.forEach(button => {
@@ -520,83 +527,41 @@
 
         let activeTechTags = new Set();
         let activeIndustryTags = new Set(); 
-        function toggleTag(tagElement) {
-            if (tagElement.classList.contains('disabled')) {
-                return;
-            }
-        
-            const tagText = tagElement.textContent.trim();
-            let tagCategory;
-        
-            if (tagElement.closest('.tags-container').id.includes('기술스택')) {
-                tagCategory = activeTechTags;
-            } else if (tagElement.closest('.tags-container').id.includes('산업분야')) {
-                tagCategory = activeIndustryTags;
-            } else if (tagElement.closest('.tags-container').id.includes('난이도')) {
-                tagCategory = activeDifficultyTags;
-            } else if (tagElement.closest('.tags-container').id.includes('MBTI')) {
-                tagCategory = activeMBTITags;
-            }
-        
-            if (tagElement.classList.contains('active')) {
-                tagCategory.delete(tagText);
+        function toggleTag(category, tag, tagElement) {
+            if (activeTags[category].has(tag)) {
+                activeTags[category].delete(tag);
                 tagElement.classList.remove('active');
             } else {
-                tagCategory.add(tagText);
+                activeTags[category].add(tag);
                 tagElement.classList.add('active');
             }
-
-            console.log('Toggled Tag:', tagText);
-            console.log('Active Tags After Toggle:', Array.from(tagCategory));
             filterContests();
         }
         
         
         function filterContests() {
             const contests = document.querySelectorAll('.contest');
-            const availableTechTags = new Set();
-            const availableIndustryTags = new Set();
-            const availableDifficultyTags = new Set();
-            const availableMBTITags = new Set();
         
             contests.forEach(contest => {
                 const contestTitle = contest.querySelector('.contest-title').textContent;
                 const contestData = contestDataMap.get(contestTitle);
         
                 if (contestData) {
-                    // Ensure 'Tech Stack' is always an array of trimmed strings
-                    const contestTechStack = Array.isArray(contestData['Tech Stack']) 
-                        ? contestData['Tech Stack'].map(tag => tag.trim())
-                        : (contestData['Tech Stack'] ? contestData['Tech Stack'].split(',').map(tag => tag.trim()) : []);
-                    
-                    const contestIndustry = contestData['Tags'] ? contestData['Tags'].split(',').map(tag => tag.trim()) : [];
-                    const contestDifficulty = contestData['난이도'];
-                    const contestMBTI = contestData['MBTI'] ? contestData['MBTI'].split(',').map(tag => tag.trim()) : [];
+                    const techStackMatch = matchCategory('기술스택', contestData['Tech Stack']);
+                    const industryMatch = matchCategory('산업분야', contestData['Tags']);
+                    const difficultyMatch = matchCategory('난이도', [contestData['난이도']]);
+                    const mbtiMatch = matchCategory('MBTI', contestData['MBTI']);
         
-                    const techStackMatch = activeTechTags.size === 0 || contestTechStack.some(tag => activeTechTags.has(tag));
-                    const industryMatch = activeIndustryTags.size === 0 || contestIndustry.some(tag => activeIndustryTags.has(tag));
-                    const difficultyMatch = activeDifficultyTags.size === 0 || activeDifficultyTags.has(contestDifficulty);
-                    const mbtiMatch = activeMBTITags.size === 0 || contestMBTI.some(tag => activeMBTITags.has(tag));
-        
-                    const dDay = contest.querySelector('.d-day').textContent;
-                    const notExpiredMatch = !showOnlyNotExpired || dDay !== "마감";
-        
-                    const shouldShow = techStackMatch && industryMatch && difficultyMatch && mbtiMatch && notExpiredMatch;
+                    const shouldShow = techStackMatch && industryMatch && difficultyMatch && mbtiMatch;
                     contest.style.display = shouldShow ? 'block' : 'none';
-        
-                    if (shouldShow) {
-                        contestTechStack.forEach(tag => availableTechTags.add(tag));
-                        contestIndustry.forEach(tag => availableIndustryTags.add(tag));
-                        availableDifficultyTags.add(contestDifficulty);
-                        contestMBTI.forEach(tag => availableMBTITags.add(tag));
-                    }
                 } else {
                     console.error('Contest not found:', contestTitle);
                     contest.style.display = 'none';
                 }
             });
-        
-            updateTagsStatus(availableTechTags, availableIndustryTags, availableDifficultyTags, availableMBTITags);
+        }
+        function matchCategory(category, contestTags) {
+            return activeTags[category].size === 0 || contestTags.some(tag => activeTags[category].has(tag));
         }
 
         function updateTagsStatus(availableTechTags, availableIndustryTags, availableDifficultyTags, availableMBTITags) {
@@ -892,10 +857,45 @@
             }
         });
         let contestDataMap;
+
+        function initializeTags() {
+            const categories = ['기술스택', '산업분야', '난이도', 'MBTI'];
+            categories.forEach(category => {
+                const containerElement = document.getElementById(`${category}-tags`);
+                if (!containerElement) return;
+        
+                const tagsElement = containerElement.querySelector('.tags');
+                tagsElement.innerHTML = ''; // Clear existing tags
+        
+                let tags;
+                switch(category) {
+                    case '기술스택':
+                        tags = Array.from(new Set(Array.from(contestDataMap.values()).flatMap(contest => contest['Tech Stack'])));
+                        break;
+                    case '산업분야':
+                        tags = Array.from(new Set(Array.from(contestDataMap.values()).flatMap(contest => contest['Tags'])));
+                        break;
+                    case '난이도':
+                        tags = Array.from(new Set(Array.from(contestDataMap.values()).map(contest => contest['난이도'])));
+                        break;
+                    case 'MBTI':
+                        tags = Array.from(new Set(Array.from(contestDataMap.values()).flatMap(contest => contest['MBTI'])));
+                        break;
+                }
+        
+                tags.forEach(tag => {
+                    const tagElement = document.createElement('span');
+                    tagElement.textContent = tag;
+                    tagElement.classList.add('tag');
+                    tagElement.addEventListener('click', () => toggleTag(category, tag, tagElement));
+                    tagsElement.appendChild(tagElement);
+                });
+            });
+        }
         function initializeApp() {
             if (typeof contestData === 'undefined') {
                 document.getElementById('error-message').style.display = 'block';
-                document.getElementById('error-message').textContent = 'Contest data could not be loaded. Please check your internet connection and refresh the page.';
+                document.getElementById('error-message').textContent = '공모전 데이터를 불러올 수 없습니다. 인터넷 연결을 확인하고 페이지를 새로고침해주세요.';
                 return;
             }
         
@@ -904,11 +904,16 @@
             // contestDataMap 초기화 및 데이터 정제
             contestDataMap = new Map(contestData.map(contest => {
                 // 'Tech Stack' 필드 정제
-                if (typeof contest['Tech Stack'] === 'string') {
-                    contest['Tech Stack'] = contest['Tech Stack'].split(',').map(tag => tag.trim());
-                } else if (!Array.isArray(contest['Tech Stack'])) {
-                    contest['Tech Stack'] = [];
-                }
+                contest['Tech Stack'] = Array.isArray(contest['Tech Stack']) 
+                    ? contest['Tech Stack'].map(tag => tag.trim())
+                    : (contest['Tech Stack'] ? contest['Tech Stack'].split(',').map(tag => tag.trim()) : []);
+                
+                // 'Tags' 필드 정제
+                contest['Tags'] = contest['Tags'] ? contest['Tags'].split(',').map(tag => tag.trim()) : [];
+        
+                // 'MBTI' 필드 정제
+                contest['MBTI'] = contest['MBTI'] ? contest['MBTI'].split(',').map(tag => tag.trim()) : [];
+        
                 return [contest.공모전명, contest];
             }));
         
@@ -916,13 +921,8 @@
         
             createCategoryButtons();
             createContestCards();
-            initializeTechTags();
-            initializeDifficultyTags();
+            initializeTags();
             filterContests();
-            
-            // TF-IDF 계산
-            const documents = contestData.map(contest => `${contest.공모전명} ${contest.기관명} ${contest['Tech Stack'].join(' ')} ${contest['Tags']}`);
-            tfidfData = calculateTFIDF(documents);
         }
 
     // DOM이 로드된 후 앱 초기화
