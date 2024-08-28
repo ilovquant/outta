@@ -705,11 +705,11 @@
             return '🔥'.repeat(iconCount);
         }
 
-        function handleContestClick(contest) {
+        function showContestDetails(contest) {
             const contestDetailsElement = document.getElementById('contest-details');
             const contestInfoDetailedElement = contestDetailsElement.querySelector('.contest-info-detailed');
             const similarContestsElement = contestDetailsElement.querySelector('.similar-contests');
-
+        
             window.scrollTo({
                 top: 0,
                 behavior: 'smooth'
@@ -728,11 +728,10 @@
                     <p class="d-day">${calculateDDay(contest.기간.split('~')[1].trim())}</p>
                 </div>
                 <div class="contest-introduction">
-                   
                     <pre>${contest['공모전 소개']}</pre>
                 </div>
             `;
-
+        
             similarContestsElement.innerHTML = ''; // 기존 내용 초기화
             
             const similarContests = findSimilarContests(contest, contestData, tfidfData)
@@ -755,10 +754,39 @@
                 similarContestElement.addEventListener('click', () => handleContestClick(similarContest));
                 similarContestsElement.appendChild(similarContestElement);
             }); 
-            
+        
+            // URL 업데이트
+            const urlParams = new URLSearchParams(window.location.search);
+            urlParams.set('contest', contest.공모전명);
+            window.history.pushState({ contestName: contest.공모전명 }, '', `${window.location.pathname}?${urlParams}`);
+        
+            // 상세 페이지 표시
             contestDetailsElement.style.display = 'flex';
+            document.getElementById('contests').style.display = 'none';
         }
 
+        function showContestList() {
+            document.getElementById('contest-details').style.display = 'none';
+            document.getElementById('contests').style.display = 'grid';
+            window.history.pushState(null, '', window.location.pathname);
+        }
+
+        // 뒤로가기 이벤트 처리
+        window.onpopstate = function(event) {
+            if (event.state && event.state.contestName) {
+                const contest = contestData.find(c => c.공모전명 === event.state.contestName);
+                if (contest) {
+                    showContestDetails(contest);
+                }
+            } else {
+                showContestList();
+            }
+        };
+
+        // 공모전 카드 클릭 이벤트 수정
+        function handleContestClick(contest) {
+            showContestDetails(contest);
+        }
         function searchContests() {
             const searchTerm = document.getElementById('search-input').value.toLowerCase();
             const contests = document.querySelectorAll('.contest');
@@ -902,9 +930,20 @@
             createContestCards();
             initializeDifficultyTags(); // 새로 추가된 함수 호출
             filterContests(); // 초기 필터링 적용
-        // TF-IDF 계산
+            // TF-IDF 계산
             const documents = contestData.map(contest => `${contest.공모전명} ${contest.기관명} ${contest['Tech Stack']} ${contest['Tags']}`);
             tfidfData = calculateTFIDF(documents);
+
+            // URL 파라미터 체크
+            const urlParams = new URLSearchParams(window.location.search);
+            const contestName = urlParams.get('contest');
+            if (contestName) {
+                const contest = contestData.find(c => c.공모전명 === contestName);
+                if (contest) {
+                    showContestDetails(contest);
+                }
+            }
+            document.getElementById('back-button').addEventListener('click', showContestList);
         }
 
     // DOM이 로드된 후 앱 초기화
