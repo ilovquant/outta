@@ -600,6 +600,9 @@
         }
 
         function updateCategoryTagsStatus(category, availableTags) {
+            // availableTags가 undefined이거나 Set이 아닌 경우 빈 Set으로 초기화
+            availableTags = availableTags instanceof Set ? availableTags : new Set();
+            
             const tags = document.querySelectorAll(`#${category}-tags .tag, #${category}-tags .difficulty-tag`);
             tags.forEach(tag => {
                 const tagText = category === '난이도' ? tag.textContent.split(' ')[0] : tag.textContent;
