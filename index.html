@@ -529,9 +529,17 @@
             const tagText = tagElement.textContent;
         
             if (category === '기술스택') {
-                // 기존 로직 유지
+                if (tagElement.classList.contains('active')) {
+                    activeTechTags.delete(tagText);
+                } else {
+                    activeTechTags.add(tagText);
+                }
             } else if (category === '산업분야') {
-                // 기존 로직 유지
+                if (tagElement.classList.contains('active')) {
+                    activeIndustryTags.delete(tagText);
+                } else {
+                    activeIndustryTags.add(tagText);
+                }
             } else if (category === 'MBTI') {
                 // MBTI 카테고리의 태그는 중복 선택 불가
                 if (activeMBTITag === tagText) {
@@ -570,21 +578,28 @@
                 if (contestInfo) {
                     const contestTechStack = new Set(contestInfo['Tech Stack'].split(' '));
                     const contestIndustry = new Set(contestInfo['Tags'].split(' '));
-                    const contestMBTI = parseMBTIData(contestInfo['MBTI']);
+                    const contestMBTI = contestInfo['MBTI'] ? new Set(contestInfo['MBTI'].split(' ')) : new Set();
                     const contestDifficulty = contestInfo.난이도.replace(/\s+/g, '');
                     const dDay = contest.querySelector('.d-day').textContent;
-        
+                    
+                    console.log(`Contest: ${contestTitle}, Difficulty: ${contestDifficulty}`); // 디버깅 로그
+                    
                     const techStackMatch = activeTechTags.size === 0 || Array.from(activeTechTags).every(tag => contestTechStack.has(tag));
                     const industryMatch = activeIndustryTags.size === 0 || Array.from(activeIndustryTags).every(tag => contestIndustry.has(tag));
-                    const mbtiMatch = !activeMBTITag || contestMBTI.has(activeMBTITag);
+                    const mbtiMatch = !activeMBTITag || contestMBTI.has(activeMBTITag); // 선택된 MBTI 태그와 일치
+                    
+                    // 개선된 난이도 매칭 로직 (공백 제거 후 정확한 일치 검사)
                     const difficultyMatch = activeDifficultyTags.size === 0 || 
                         Array.from(activeDifficultyTags).some(tag => {
                             const normalizedTag = tag.replace(/\s+/g, '');
                             return normalizedTag === contestDifficulty;
                         });
+                    
+                    console.log(`Difficulty match for ${contestTitle}: ${difficultyMatch}, Active tags: ${Array.from(activeDifficultyTags)}, Contest difficulty: ${contestDifficulty}`); // 상세 디버깅 로그
+                    
                     const notExpiredMatch = !showOnlyNotExpired || dDay !== "마감";
-        
-                    const shouldShow = techStackMatch && industryMatch && difficultyMatch && mbtiMatch && notExpiredMatch;
+                    
+                    const shouldShow = techStackMatch && industryMatch && difficultyMatch && mbtiMatch && notExpiredMatch ;
                     contest.style.display = shouldShow ? 'block' : 'none';
         
                     if (shouldShow) {
@@ -593,20 +608,23 @@
                         contestMBTI.forEach(tag => availableMBTITags.add(tag));
                         availableDifficultyTags.add(contestDifficulty);
                     }
+        
+                    // 난이도 매칭 상세 로그
+                    console.log(`Contest ${contestTitle} - Tech Stack Match: ${techStackMatch}, Industry Match: ${industryMatch}, Difficulty Match: ${difficultyMatch}, Not Expired Match: ${notExpiredMatch}`);
                 } else {
                     console.error('Contest not found:', contestTitle);
                     contest.style.display = 'none';
                 }
             });
         
+            console.log('Available difficulty tags:', Array.from(availableDifficultyTags)); // 디버깅 로그
+        
             updateTagsStatus(availableTechTags, availableIndustryTags, availableDifficultyTags, availableMBTITags);
         
-            // 디버깅을 위한 로그 추가
-            console.log('Active MBTI Tag:', activeMBTITag);
-            console.log('Available MBTI Tags:', availableMBTITags);
-            console.log('Visible Contests:', document.querySelectorAll('.contest[style="display: block;"]').length);
+            // 필터링 결과 요약
+            const visibleContests = document.querySelectorAll('.contest[style="display: block;"]');
+            console.log(`Visible contests after filtering: ${visibleContests.length}`);
         }
-        
 
         function updateTagsStatus(availableTechTags, availableIndustryTags, availableDifficultyTags, availableMBTITags) {
             updateCategoryTagsStatus('기술스택', availableTechTags);
@@ -879,7 +897,6 @@
                 document.getElementById('error-message').textContent = 'Contest data could not be loaded. Please check your internet connection and refresh the page.';
                 return;
             }
-            createTags('MBTI');
     
             createCategoryButtons();
             createContestCards();
