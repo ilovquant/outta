@@ -554,34 +554,34 @@
             const availableTechTags = new Set();
             const availableIndustryTags = new Set();
             const availableDifficultyTags = new Set();
-            const availableMBTITags = new Set(); // 새로 추가
+            const availableMBTITags = new Set();
         
             contests.forEach(contest => {
                 const contestTitle = contest.querySelector('.contest-title').textContent;
                 const contestData = contestDataMap.get(contestTitle);
         
                 if (contestData) {
-                    const contestTechStack = contestData['Tech Stack'].split(',').map(tag => tag.trim());
-                    const contestIndustry = contestData['Tags'].split(',').map(tag => tag.trim());
+                    const contestTechStack = contestData['Tech Stack'] ? contestData['Tech Stack'].split(',').map(tag => tag.trim()) : [];
+                    const contestIndustry = contestData['Tags'] ? contestData['Tags'].split(',').map(tag => tag.trim()) : [];
                     const contestDifficulty = contestData['난이도'];
-                    const contestMBTI = contestData['MBTI'] ? contestData['MBTI'].split(',').map(tag => tag.trim()) : []; // 새로 추가
+                    const contestMBTI = contestData['MBTI'] ? contestData['MBTI'].split(',').map(tag => tag.trim()) : [];
         
                     const techStackMatch = activeTechTags.size === 0 || contestTechStack.some(tag => activeTechTags.has(tag));
                     const industryMatch = activeIndustryTags.size === 0 || contestIndustry.some(tag => activeIndustryTags.has(tag));
                     const difficultyMatch = activeDifficultyTags.size === 0 || activeDifficultyTags.has(contestDifficulty);
-                    const mbtiMatch = activeMBTITags.size === 0 || contestMBTI.some(tag => activeMBTITags.has(tag)); // 새로 추가
+                    const mbtiMatch = activeMBTITags.size === 0 || contestMBTI.some(tag => activeMBTITags.has(tag));
         
                     const dDay = contest.querySelector('.d-day').textContent;
                     const notExpiredMatch = !showOnlyNotExpired || dDay !== "마감";
         
-                    const shouldShow = techStackMatch && industryMatch && difficultyMatch && mbtiMatch && notExpiredMatch; // mbtiMatch 추가
+                    const shouldShow = techStackMatch && industryMatch && difficultyMatch && mbtiMatch && notExpiredMatch;
                     contest.style.display = shouldShow ? 'block' : 'none';
         
                     if (shouldShow) {
                         contestTechStack.forEach(tag => availableTechTags.add(tag));
                         contestIndustry.forEach(tag => availableIndustryTags.add(tag));
                         availableDifficultyTags.add(contestDifficulty);
-                        contestMBTI.forEach(tag => availableMBTITags.add(tag)); // 새로 추가
+                        contestMBTI.forEach(tag => availableMBTITags.add(tag));
                     }
                 } else {
                     console.error('Contest not found:', contestTitle);
@@ -589,7 +589,7 @@
                 }
             });
         
-            updateTagsStatus(availableTechTags, availableIndustryTags, availableDifficultyTags, availableMBTITags); // availableMBTITags 추가
+            updateTagsStatus(availableTechTags, availableIndustryTags, availableDifficultyTags, availableMBTITags);
         }
 
         function updateTagsStatus(availableTechTags, availableIndustryTags, availableDifficultyTags, availableMBTITags) {
@@ -871,18 +871,23 @@
                 console.error("Search elements not found");
             }
         });
+        let contestDataMap;
         function initializeApp() {
             if (typeof contestData === 'undefined') {
                 document.getElementById('error-message').style.display = 'block';
                 document.getElementById('error-message').textContent = 'Contest data could not be loaded. Please check your internet connection and refresh the page.';
                 return;
             }
-    
+        
+            // contestDataMap 초기화
+            contestDataMap = new Map(contestData.map(contest => [contest.공모전명, contest]));
+        
             createCategoryButtons();
             createContestCards();
-            initializeDifficultyTags(); // 새로 추가된 함수 호출
-            filterContests(); // 초기 필터링 적용
-        // TF-IDF 계산
+            initializeDifficultyTags();
+            filterContests();
+            
+            // TF-IDF 계산
             const documents = contestData.map(contest => `${contest.공모전명} ${contest.기관명} ${contest['Tech Stack']} ${contest['Tags']}`);
             tfidfData = calculateTFIDF(documents);
         }
