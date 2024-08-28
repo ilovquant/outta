@@ -466,6 +466,8 @@
  
         function handleNotExpiredButton(button) {
             showOnlyNotExpired = button.classList.contains('active');
+            filterContests();
+            updateState(); 
         }
 
         const difficultyMapping = {
@@ -505,6 +507,7 @@
                 activeDifficultyTags.delete(difficultyText);
             }
             filterContests();
+            updateState(); 
         }
         function createTags(category) {
             const tagsContainer = document.querySelector(`#${category}-tags .tags`);
@@ -544,6 +547,7 @@
         
             tagElement.classList.toggle('active');
             filterContests();
+            updateState();
         }
         
         function filterContests() {
@@ -614,6 +618,18 @@
             updateCategoryTagsStatus('산업분야', availableIndustryTags);
             updateCategoryTagsStatus('난이도', availableDifficultyTags);
             updateCategoryTagsStatus('MBTI', availableMBTITags);
+        }
+        function updateState() {
+            const state = {
+                activeTechTags: Array.from(activeTechTags),
+                activeIndustryTags: Array.from(activeIndustryTags),
+                activeDifficultyTags: Array.from(activeDifficultyTags),
+                activeMBTITags: Array.from(activeMBTITags),
+                showOnlyNotExpired: showOnlyNotExpired
+            };
+            const title = "공모전 추천 사이트";
+            const url = `?${new URLSearchParams(state).toString()}`;
+            history.pushState(state, title, url);
         }
 
         function updateCategoryTagsStatus(category, availableTags) {
@@ -748,27 +764,87 @@
         }
 
         function handlePopState(event) {
-            if (event.state && event.state.contestId) {
-                const contest = contestData.find(c => c.공모전명 === event.state.contestId);
-                if (contest) {
-                    handleContestClick(contest);
+            if (event.state) {
+                if (event.state.contestId) {
+                    // 기존의 공모전 상세 정보 처리 코드
+                    const contest = contestData.find(c => c.공모전명 === event.state.contestId);
+                    if (contest) {
+                        handleContestClick(contest);
+                    } else {
+                        document.getElementById('contest-details').style.display = 'none';
+                        window.scrollTo(0, 0);
+                    }
                 } else {
-                    document.getElementById('contest-details').style.display = 'none';
-                    window.scrollTo(0, 0);
+                    // 홈페이지 상태 복원
+                    activeTechTags = new Set(event.state.activeTechTags);
+                    activeIndustryTags = new Set(event.state.activeIndustryTags);
+                    activeDifficultyTags = new Set(event.state.activeDifficultyTags);
+                    activeMBTITags = new Set(event.state.activeMBTITags);
+                    showOnlyNotExpired = event.state.showOnlyNotExpired;
+        
+                    // UI 업데이트
+                    updateUI();
+                    filterContests();
                 }
             } else {
-                document.getElementById('contest-details').style.display = 'none';
-                window.scrollTo(0, 0);
+                // 초기 상태로 복원
+                resetState();
+                updateUI();
+                filterContests();
             }
+        }
+
+        function resetState() {
+            activeTechTags.clear();
+            activeIndustryTags.clear();
+            activeDifficultyTags.clear();
+            activeMBTITags.clear();
+            showOnlyNotExpired = false;
+        }
+        function updateUI() {
+            // 카테고리 버튼 상태 업데이트
+            document.querySelectorAll('.category-button').forEach(button => {
+                const category = button.dataset.category;
+                if (category === '마감X') {
+                    button.classList.toggle('active', showOnlyNotExpired);
+                } else {
+                    const tagsContainer = document.getElementById(`${category}-tags`);
+                    tagsContainer.style.display = (activeTechTags.size > 0 || activeIndustryTags.size > 0 || activeDifficultyTags.size > 0 || activeMBTITags.size > 0) ? 'block' : 'none';
+                }
+            });
+        
+            // 태그 상태 업데이트
+            updateTagsUI('기술스택', activeTechTags);
+            updateTagsUI('산업분야', activeIndustryTags);
+            updateTagsUI('난이도', activeDifficultyTags);
+            updateTagsUI('MBTI', activeMBTITags);
+        }
+        
+        function updateTagsUI(category, activeTags) {
+            const tags = document.querySelectorAll(`#${category}-tags .tag, #${category}-tags .difficulty-tag`);
+            tags.forEach(tag => {
+                tag.classList.toggle('active', activeTags.has(tag.textContent));
+            });
         }
         function handleInitialLoad() {
             const urlParams = new URLSearchParams(window.location.search);
             const contestParam = urlParams.get('contest');
+        
             if (contestParam) {
                 const contest = contestData.find(c => c.공모전명 === decodeURIComponent(contestParam));
                 if (contest) {
                     handleContestClick(contest);
                 }
+            } else {
+                // URL 파라미터에서 상태 복원
+                activeTechTags = new Set(urlParams.getAll('activeTechTags'));
+                activeIndustryTags = new Set(urlParams.getAll('activeIndustryTags'));
+                activeDifficultyTags = new Set(urlParams.getAll('activeDifficultyTags'));
+                activeMBTITags = new Set(urlParams.getAll('activeMBTITags'));
+                showOnlyNotExpired = urlParams.get('showOnlyNotExpired') === 'true';
+        
+                updateUI();
+                filterContests();
             }
         }
 
