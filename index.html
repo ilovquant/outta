@@ -374,6 +374,8 @@
             color: #ffffff;
         }
 
+        
+
 
         .dark-mode .contest-info-detailed h2,
         .dark-mode .contest-info-detailed p,
@@ -395,7 +397,7 @@
         .dark-mode .category-button.active {
             background-color: #F20303;
         }
-        
+
         .dark-mode .tag.active,
         .dark-mode .difficulty-tag.active {
             background-color: #F20303;
@@ -423,7 +425,10 @@
         .dark-mode .d-day {
             color: #ffffff;
         }
-        
+
+        .dark-mode .contest .difficulty-label {
+            color: #F20303;
+        }
     </style>
 </head>
 <body>
@@ -432,10 +437,11 @@
     
     <header class="header">
         <div class="logo-container">
-            <a href="index.html">
-                <img src="./bunny2.png" alt="BunnyTech Logo" class="logo">
+            <a href="index.html", id="logo-link">
+                <img src="./bunny2.png" alt="BunnyTech Logo" class="logo", id="logo-image">
             </a>
         </div>
+        
        
     </header>
 
@@ -632,6 +638,53 @@
                 tagsContainer.appendChild(tagElement);
             });
         }
+
+
+        function resetHomeState() {
+            // 모든 필터 초기화
+            activeTechTags.clear();
+            activeIndustryTags.clear();
+            activeDifficultyTags.clear();
+            activeMBTITags = new Set();
+            showOnlyNotExpired = false;
+        
+            // UI 업데이트
+            updateUI();
+            filterContests();
+        
+            // 상세 페이지 숨기기
+            const contestDetailsElement = document.getElementById('contest-details');
+            if (contestDetailsElement) {
+                contestDetailsElement.style.display = 'none';
+            }
+        
+            // 스크롤을 페이지 상단으로 이동
+            window.scrollTo(0, 0);
+        
+            // 상태 업데이트 및 히스토리에 추가
+            updateState();
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const logoLink = document.getElementById('logo-link');
+            const logoImage = document.getElementById('logo-image');
+        
+            if (logoLink && logoImage) {
+                logoLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // 현재 모드 상태 유지
+                    if (isDarkMode) {
+                        logoImage.src = './bunny.png';
+                    } else {
+                        logoImage.src = './bunny2.png';
+                    }
+        
+                    // 홈 상태로 초기화
+                    resetHomeState();
+                });
+            }
+        });
         
         function toggleDifficultyTag(tagElement) {
             tagElement.classList.toggle('active');
